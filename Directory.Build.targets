@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+    <PropertyGroup>
+        <Authors Condition="'$(Authors)' == ''">Teneko .NET Tools authors and contributors</Authors>
+        <Copyright Condition="'$(Copyright)' == ''">Copyright (c) 2022 Teneko .NET Tools authors and contributors</Copyright>
+        <Product Condition="'$(Product)' == ''">$(MSBuildProjectName)</Product>
+        <PackageLicenseFile Condition="'$(PackageLicenseFile)' == ''">LICENSE</PackageLicenseFile>
+        <PackageIcon Condition="'$(PackageIcon)' == ''">icon.png</PackageIcon>
+        <LangVersion Condition="'$(LangVersion)' == ''">10.0</LangVersion>
+        <RepositoryUrl>https://github.com/teneko-net-tools/Kenet.Collections</RepositoryUrl>
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
+        <PackageProjectUrl>https://github.com/teneko-net-tools/Kenet.Collections</PackageProjectUrl>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <None Include="$(MSBuildThisFileDirectory)\LICENSE">
+            <Pack>True</Pack>
+            <PackagePath></PackagePath>
+        </None>
+
+        <None Include="$(MSBuildThisFileDirectory)\res\icon.png">
+            <Pack>True</Pack>
+            <PackagePath></PackagePath>
+        </None>
+    </ItemGroup>
+
+</Project>

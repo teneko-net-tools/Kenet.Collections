@@ -1,0 +1,52 @@
+@startuml simplified-architecture
+
+together {
+    class SimpleProcessStartInfo {
+        Equivalent to ProcessStartInfo
+    }
+    SimpleProcessStartInfo -[hidden]> SimpleProcess
+
+    class SimpleProcess {
+        Equivalent to 
+        System.Diagnostics.Process
+        --
+        + Run()
+        + Cancel()
+        + CancelAfter(..)
+        + RunToCompletion(..)
+        + RunToCompletionAsync(..)
+        + Kill(..)
+    }
+    SimpleProcess o- SimpleProcessStartInfo : requires >
+}
+
+class ProcessExecution {
+    Equivalent to SimpleProcess,
+    but with more runtime features
+}
+ProcessExecution <|- ProcessExecutor : runs <
+ProcessExecution *- SimpleProcess : owns >
+
+class ProcessExecutorBuilder {
+    + WithExitCode(..)
+    + WithErrorInterpretation(..)
+    + AddOutputWriter(..)
+    + AddErrorWriter(..)
+    + AddCancellation(..)
+}
+ProcessExecutorBuilder o- SimpleProcessStartInfo : requires >
+
+class ProcessExecutor {
+    Non-repeatable process starter
+    --
+    If not yet ran: same semantics
+    as ProcessExecutorBuilder,
+    but with more features
+    --
+    + WriteToAsyncLines(..)
+    + ProcessExecution Run()
+}
+ProcessExecutor "many" <|- ProcessExecutorBuilder : builds <
+ProcessExecutor "1" *- "1" ProcessExecution : owns >
+
+@enduml
