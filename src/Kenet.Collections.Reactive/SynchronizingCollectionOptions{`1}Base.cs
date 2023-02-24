@@ -2,9 +2,9 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
-using Teronis.Collections.Algorithms.Modifications;
+using Kenet.Collections.Algorithms.Modifications;
 
-namespace Teronis.Collections.Synchronization
+namespace Kenet.Collections.Synchronization
 {
     public abstract class SynchronizingCollectionOptionsBase<TDerived, TItem>
         where TDerived : SynchronizingCollectionOptionsBase<TDerived, TItem>

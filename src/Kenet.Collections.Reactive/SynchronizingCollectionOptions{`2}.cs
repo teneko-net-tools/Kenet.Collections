@@ -3,7 +3,7 @@
 
 using System;
 
-namespace Teronis.Collections.Synchronization
+namespace Kenet.Collections.Synchronization
 {
     public sealed class SynchronizingCollectionOptions<TSuperItem, TSubItem> : SynchronizingCollectionOptionsBase<SynchronizingCollectionOptions<TSuperItem, TSubItem>, TSuperItem>
         where TSuperItem : notnull

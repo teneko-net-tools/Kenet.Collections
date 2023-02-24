@@ -3,9 +3,9 @@
 
 using System;
 using System.Collections.Generic;
-using Teronis.Collections.Generic;
+using Kenet.Collections.Generic;
 
-namespace Teronis.Collections.Specialized
+namespace Kenet.Collections.Specialized
 {
     public interface IReadOnlyLinkedBucketList<KeyType, out ValueType> : IEnumerable<ValueType>
         where KeyType : notnull

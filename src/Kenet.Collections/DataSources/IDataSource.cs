@@ -2,9 +2,9 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System;
-using Teronis.Collections.DataSources.Generic;
+using Kenet.Collections.DataSources.Generic;
 
-namespace Teronis.Collections.DataSources
+namespace Kenet.Collections.DataSources
 {
     public interface IDataSource : IDisposable
     {

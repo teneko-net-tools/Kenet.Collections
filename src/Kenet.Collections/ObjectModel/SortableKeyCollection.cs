@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 
-namespace Teronis.Collections.ObjectModel
+namespace Kenet.Collections.ObjectModel
 {
     public class SortableKeyCollection<KeyType, ItemType> : KeyedCollection<KeyType, ItemType>
         where KeyType : notnull

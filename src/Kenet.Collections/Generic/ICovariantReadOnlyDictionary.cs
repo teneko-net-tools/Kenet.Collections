@@ -5,7 +5,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 
-namespace Teronis.Collections.Generic
+namespace Kenet.Collections.Generic
 {
     public interface ICovariantReadOnlyDictionary<TKey, out ValueType> :
         IEnumerable<ICovariantKeyValuePair<TKey, ValueType>>, IEnumerable, IReadOnlyCollection<ICovariantKeyValuePair<TKey, ValueType>>

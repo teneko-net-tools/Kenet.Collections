@@ -5,9 +5,9 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using Teronis.Collections.Generic;
+using Kenet.Collections.Generic;
 
-namespace Teronis.Collections.Specialized
+namespace Kenet.Collections.Specialized
 {
     public class LinkedBucketList<KeyType, ValueType> : ILinkedBucketList<KeyType, ValueType>
         where KeyType : notnull

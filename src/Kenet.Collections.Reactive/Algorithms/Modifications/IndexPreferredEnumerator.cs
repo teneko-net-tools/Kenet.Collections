@@ -5,7 +5,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 
-namespace Teronis.Collections.Algorithms.Modifications
+namespace Kenet.Collections.Algorithms.Modifications
 {
     internal class IndexPreferredEnumerator<TItem> : IEnumerator<TItem>
     {

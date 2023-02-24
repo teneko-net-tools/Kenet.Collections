@@ -4,7 +4,7 @@
 using System;
 using System.Text;
 
-namespace Teronis.Collections.Generic
+namespace Kenet.Collections.Generic
 {
     public static class IOrderedKeysProviderExtensions
     {

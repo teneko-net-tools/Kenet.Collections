@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Teronis.Utils;
 
-namespace Teronis.Collections.Specialized
+namespace Kenet.Collections.Specialized
 {
     public class IndexDirectory
     {

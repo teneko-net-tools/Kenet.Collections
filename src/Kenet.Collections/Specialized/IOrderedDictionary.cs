@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Diagnostics.CodeAnalysis;
 
-namespace Teronis.Collections.Specialized
+namespace Kenet.Collections.Specialized
 {
     public interface IOrderedDictionary<TKey, TValue> : IDictionary<TKey, TValue>, IOrderedDictionary, IReadOnlyDictionary<TKey, TValue>
         where TKey : notnull

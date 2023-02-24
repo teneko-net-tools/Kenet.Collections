@@ -8,7 +8,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Teronis.Extensions;
 
-namespace Teronis.Collections.Generic
+namespace Kenet.Collections.Generic
 {
     public class NullableKeyDictionary<TKey, TValue> : INullableKeyDictionary<TKey, TValue>, IReadOnlyNullableKeyDictionary<TKey, TValue>
         where TKey : notnull

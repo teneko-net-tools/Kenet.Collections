@@ -3,7 +3,7 @@
 
 using System.Collections.Generic;
 
-namespace Teronis.Collections.Algorithms.Modifications
+namespace Kenet.Collections.Algorithms.Modifications
 {
     public static class ICollectionSynchronizationMethodExtensions
     {

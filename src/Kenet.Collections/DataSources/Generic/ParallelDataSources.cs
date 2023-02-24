@@ -9,7 +9,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 
-namespace Teronis.Collections.DataSources.Generic
+namespace Kenet.Collections.DataSources.Generic
 {
     public class ParallelDataSources<DataType> : AsyncDataSource<DataType>
     {

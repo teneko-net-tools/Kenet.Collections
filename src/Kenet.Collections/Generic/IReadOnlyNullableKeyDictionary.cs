@@ -5,7 +5,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 
-namespace Teronis.Collections.Generic
+namespace Kenet.Collections.Generic
 {
     public interface IReadOnlyNullableKeyDictionary<KeyType, ValueType> : IReadOnlyDictionary<KeyType, ValueType>, IReadOnlyDictionary<YetNullable<KeyType>, ValueType>,
         IReadOnlyCollection<KeyValuePair<IYetNullable<KeyType>, ValueType>>, ICovariantReadOnlyNullableKeyDictionary<KeyType, ValueType>, IEnumerable

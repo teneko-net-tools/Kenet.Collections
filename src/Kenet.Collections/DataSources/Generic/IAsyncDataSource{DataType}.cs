@@ -4,7 +4,7 @@
 using System.Collections.Generic;
 using System.Threading;
 
-namespace Teronis.Collections.DataSources.Generic
+namespace Kenet.Collections.DataSources.Generic
 {
     public interface IAsyncDataSource<out DataType> : IDataSource<DataType>
     {

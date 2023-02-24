@@ -3,7 +3,7 @@
 
 using System.Collections.Generic;
 
-namespace Teronis.Collections.Generic
+namespace Kenet.Collections.Generic
 {
     public abstract class KeyValuePairEnumeratorWithConversionBase<CurrentType, KeyType, ValueType> : KeyValuePairEnumeratorBase<CurrentType, KeyType, ValueType>, IEnumerator<CurrentType>
     {

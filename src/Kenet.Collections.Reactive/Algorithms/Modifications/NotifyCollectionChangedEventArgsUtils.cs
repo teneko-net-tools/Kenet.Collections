@@ -7,7 +7,7 @@ using System.Collections.Specialized;
 using System.Reflection;
 using Concurrent.FastReflection.NetStandard;
 
-namespace Teronis.Collections.Algorithms.Modifications
+namespace Kenet.Collections.Algorithms.Modifications
 {
     public static class NotifyCollectionChangedEventArgsUtils
     {

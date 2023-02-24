@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Xunit;
 
-namespace Teronis.Collections.Generic
+namespace Kenet.Collections.Generic
 {
     public class NullableKeyDictionaryTests
     {

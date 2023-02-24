@@ -3,7 +3,7 @@
 
 using System;
 
-namespace Teronis.Collections.ObjectModel
+namespace Kenet.Collections.ObjectModel
 {
     public class ObjectEventDispatcher<ObjectType> : IDisposable
     {

@@ -6,7 +6,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 
-namespace Teronis.Collections.Generic
+namespace Kenet.Collections.Generic
 {
     public abstract class KeyValuePairEnumeratorBase<CurrentType, KeyType, ValueType> : IEnumerator<KeyValuePair<KeyType, ValueType>>
     {

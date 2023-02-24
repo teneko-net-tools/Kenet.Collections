@@ -3,10 +3,10 @@
 
 using System.Collections.Generic;
 using System.Collections.Specialized;
-using Teronis.Collections.Algorithms.Modifications;
-using Teronis.Collections.ObjectModel;
+using Kenet.Collections.Algorithms.Modifications;
+using Kenet.Collections.ObjectModel;
 
-namespace Teronis.Collections.Synchronization
+namespace Kenet.Collections.Synchronization
 {
     public class CollectionModifiedEventArgs<TItem> : NotifyCollectionChangedEventArgs, ICollectionModification<TItem, TItem>
     {

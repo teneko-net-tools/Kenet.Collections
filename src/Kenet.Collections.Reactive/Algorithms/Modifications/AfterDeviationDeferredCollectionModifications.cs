@@ -8,11 +8,11 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using Teronis.Collections.ObjectModel;
-using Teronis.Collections.Specialized;
+using Kenet.Collections.ObjectModel;
+using Kenet.Collections.Specialized;
 using Teronis.Diagnostics;
 
-namespace Teronis.Collections.Algorithms.Modifications
+namespace Kenet.Collections.Algorithms.Modifications
 {
     /// <summary>
     /// The algorithm creates modifications that can transform one collection into another collection.

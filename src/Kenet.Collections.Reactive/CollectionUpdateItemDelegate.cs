@@ -3,7 +3,7 @@
 
 using System;
 
-namespace Teronis.Collections.Synchronization
+namespace Kenet.Collections.Synchronization
 {
     /// <summary>
     /// Used to update the item by new item. When the new item is not present at the time the modification is applying it will be

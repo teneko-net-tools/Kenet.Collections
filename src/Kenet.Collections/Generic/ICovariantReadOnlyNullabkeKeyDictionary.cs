@@ -4,7 +4,7 @@
 using System.Collections;
 using System.Collections.Generic;
 
-namespace Teronis.Collections.Generic
+namespace Kenet.Collections.Generic
 {
     public interface ICovariantReadOnlyNullableKeyDictionary<TKey, out TValue> :
         ICovariantReadOnlyDictionary<TKey, TValue>, ICovariantReadOnlyDictionary<YetNullable<TKey>, TValue>,

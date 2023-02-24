@@ -4,7 +4,7 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
 
-namespace Teronis.Collections.Synchronization
+namespace Kenet.Collections.Synchronization
 {
     public class SynchronizingCollection<TSuperItem, TSubItem> : SynchronizingCollectionBase<TSuperItem, TSubItem>
         where TSuperItem : notnull

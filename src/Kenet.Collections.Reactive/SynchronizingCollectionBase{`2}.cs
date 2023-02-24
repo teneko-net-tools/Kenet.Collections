@@ -5,12 +5,12 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
-using Teronis.Collections.Algorithms;
-using Teronis.Collections.Algorithms.Modifications;
-using Teronis.Collections.Synchronization.PostConfigurators;
+using Kenet.Collections.Algorithms;
+using Kenet.Collections.Algorithms.Modifications;
+using Kenet.Collections.Synchronization.PostConfigurators;
 using Teronis.Extensions;
 
-namespace Teronis.Collections.Synchronization
+namespace Kenet.Collections.Synchronization
 {
     /// <summary>
     /// A synchronizing collection.

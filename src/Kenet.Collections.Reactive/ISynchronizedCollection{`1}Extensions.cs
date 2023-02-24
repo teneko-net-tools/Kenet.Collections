@@ -4,7 +4,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Teronis.Collections.Synchronization
+namespace Kenet.Collections.Synchronization
 {
     public static class ISynchronizedCollectionGenericExtensions
     {

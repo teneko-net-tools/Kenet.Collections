@@ -5,9 +5,9 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using Teronis.Collections.Generic;
+using Kenet.Collections.Generic;
 
-namespace Teronis.Collections.Generic
+namespace Kenet.Collections.Generic
 {
     public class NullableKeyEnumuerator<KeyType, ValueType> : IEnumerator<KeyValuePair<YetNullable<KeyType>, ValueType>>
         where KeyType : notnull

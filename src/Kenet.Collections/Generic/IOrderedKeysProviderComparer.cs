@@ -4,7 +4,7 @@
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 
-namespace Teronis.Collections.Generic
+namespace Kenet.Collections.Generic
 {
     /// <summary>
     /// Compares two instances of <see cref="IOrderedKeysProvider"/>.

@@ -2,7 +2,7 @@
 
 	<PropertyGroup>
 		<TargetFrameworks>netstandard2.0;netcoreapp3.1;net5.0</TargetFrameworks>
-		<RootNamespace>Teronis.Collections.Synchronization</RootNamespace>
+		<RootNamespace>Kenet.Collections.Synchronization</RootNamespace>
 		<Description>
 			<![CDATA[Provides classes for collection synchronization.
 
@@ -17,6 +17,10 @@ SynchronizingCollectionBase<ItemType, ContentType>]]>
       SortedCollectionModifications]]>
 		</Description>
 	</PropertyGroup>
+
+	<ItemGroup>
+		<Compile Include="../snippets/*" />
+	</ItemGroup>
 
 	<ItemGroup>
 		<PackageReference Include="System.Collections.Immutable" Version="5.0.0" />

@@ -3,7 +3,7 @@
 
 using System.Collections.Generic;
 
-namespace Teronis.Collections.Specialized
+namespace Kenet.Collections.Specialized
 {
     public static class LinkedBucketListUtils
     {

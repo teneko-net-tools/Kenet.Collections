@@ -4,7 +4,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Teronis.Collections.Synchronization
+namespace Kenet.Collections.Synchronization
 {
     public abstract class SynchronizableCollectionItemsOptionsBase<TDerived, TItem> : ISynchronizableCollectionItemsOptions<TItem>
         where TDerived : SynchronizableCollectionItemsOptionsBase<TDerived, TItem>

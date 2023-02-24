@@ -5,7 +5,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 
-namespace Teronis.Collections.Generic
+namespace Kenet.Collections.Generic
 {
     public class DictionaryEnumerator<TKey, TValue> : IDictionaryEnumerator, IDisposable
         where TKey : notnull

@@ -13,6 +13,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Kenet.Collections", "src\Ke
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Kenet.Collections.Reactive", "src\Kenet.Collections.Reactive\Kenet.Collections.Reactive.csproj", "{E3B126AC-7DA7-47DF-BE67-14CB6AD78894}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "snippets", "snippets", "{D6BA72E0-F359-491F-892B-A0627AC52474}"
+	ProjectSection(SolutionItems) = preProject
+		src\snippets\CollectionTools.cs = src\snippets\CollectionTools.cs
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

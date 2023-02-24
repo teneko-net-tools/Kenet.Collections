@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;netcoreapp3.1;net5.0</TargetFrameworks>
-    <RootNamespace>Teronis.Collections</RootNamespace>
+    <RootNamespace>Kenet.Collections</RootNamespace>
     <Description>
       <![CDATA[Provides classes that define generic collections.
       
@@ -11,6 +11,10 @@ NullableKeyDictionary<KeyType, ValueType>
 CovariantKeyValuePairCollection<KeyType, ValueType>]]>
     </Description>
   </PropertyGroup>
+
+	<ItemGroup>
+		<Compile Include="../snippets/*" />
+	</ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="System.Interactive.Async" Version="5.0.0" />

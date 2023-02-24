@@ -4,7 +4,7 @@
 using System.Collections.Generic;
 using Teronis.Utils;
 
-namespace Teronis.Collections.Specialized
+namespace Kenet.Collections.Specialized
 {
     public static class OrderedDictionaryExtensions
     {

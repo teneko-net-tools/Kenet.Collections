@@ -4,9 +4,9 @@
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Diagnostics;
-using Teronis.Collections.Algorithms.Modifications;
+using Kenet.Collections.Algorithms.Modifications;
 
-namespace Teronis.Collections.Synchronization.Utils
+namespace Kenet.Collections.Synchronization.Utils
 {
     public static class IEnumerableICollectionModificationUtils
     {

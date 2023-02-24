@@ -3,7 +3,7 @@
 
 using System;
 
-namespace Teronis.Collections.Synchronization
+namespace Kenet.Collections.Synchronization
 {
     // TODO: Consider to remove <TItem>.
     public interface INotifyCollectionSynchronized<TItem>

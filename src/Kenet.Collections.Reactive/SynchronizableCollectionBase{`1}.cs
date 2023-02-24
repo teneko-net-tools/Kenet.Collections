@@ -7,11 +7,11 @@ using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
-using Teronis.Collections.Algorithms.Modifications;
+using Kenet.Collections.Algorithms.Modifications;
 using Teronis.ComponentModel;
 using System.Reactive.Subjects;
 
-namespace Teronis.Collections.Synchronization
+namespace Kenet.Collections.Synchronization
 {
     public abstract class SynchronizableCollectionBase<TItem, TNewItem> : Collection<TItem>, ISynchronizedCollection<TItem>
     {

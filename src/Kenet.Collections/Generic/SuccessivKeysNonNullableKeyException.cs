@@ -3,7 +3,7 @@
 
 using System;
 
-namespace Teronis.Collections.Generic
+namespace Kenet.Collections.Generic
 {
     public class SuccessiveKeysNonNullableKeyException : ArgumentException
     {

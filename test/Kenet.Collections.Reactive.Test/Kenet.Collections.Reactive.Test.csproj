@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
-    <RootNamespace>Teronis.Collections.Synchronization</RootNamespace>
+    <RootNamespace>Kenet.Collections.Synchronization</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>

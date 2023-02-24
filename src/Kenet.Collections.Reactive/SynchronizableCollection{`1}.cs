@@ -6,10 +6,10 @@ using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using Teronis.Collections.Algorithms.Modifications;
-using Teronis.Collections.Synchronization.PostConfigurators;
+using Kenet.Collections.Algorithms.Modifications;
+using Kenet.Collections.Synchronization.PostConfigurators;
 
-namespace Teronis.Collections.Synchronization
+namespace Kenet.Collections.Synchronization
 {
     public partial class SynchronizableCollection<TItem> : SynchronizableCollectionBase<TItem, TItem>, ICollectionSynchronizationContext<TItem>
         where TItem : notnull

@@ -6,38 +6,38 @@
 Vor:
 using Microsoft.Extensions.Logging;
 using System;
-using Teronis.Collections.DataSources;
+using Kenet.Collections.DataSources;
 Nach:
 using System;
 using Microsoft.Extensions.Logging;
-using Teronis.Collections.DataSources;
+using Kenet.Collections.DataSources;
 */
 
 /* Nicht gemergte Änderung aus Projekt "Teronis.NetStandard.Core (netcoreapp3.1)"
 Vor:
 using Microsoft.Extensions.Logging;
 using System;
-using Teronis.Collections.DataSources;
+using Kenet.Collections.DataSources;
 Nach:
 using System;
 using Microsoft.Extensions.Logging;
-using Teronis.Collections.DataSources;
+using Kenet.Collections.DataSources;
 */
 
 /* Nicht gemergte Änderung aus Projekt "GitVersionCache.NetStandard.Core (netcoreapp3.1)"
 Vor:
 using Microsoft.Extensions.Logging;
 using System;
-using Teronis.Collections.DataSources;
+using Kenet.Collections.DataSources;
 Nach:
 using System;
 using Microsoft.Extensions.Logging;
-using Teronis.Collections.DataSources;
+using Kenet.Collections.DataSources;
 */
 using System;
 using Microsoft.Extensions.Logging;
 
-namespace Teronis.Collections.DataSources.Generic
+namespace Kenet.Collections.DataSources.Generic
 {
     public abstract class DataSourceBase<TData> : IDataSource
     {

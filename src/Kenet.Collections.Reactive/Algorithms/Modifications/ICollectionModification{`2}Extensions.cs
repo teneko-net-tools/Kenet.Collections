@@ -5,10 +5,10 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Linq;
-using Teronis.Collections.ObjectModel;
+using Kenet.Collections.ObjectModel;
 using Teronis.Extensions;
 
-namespace Teronis.Collections.Algorithms.Modifications
+namespace Kenet.Collections.Algorithms.Modifications
 {
     public static class ICollectionModificationGenericExtensions
     {

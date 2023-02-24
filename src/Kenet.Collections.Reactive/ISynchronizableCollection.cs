@@ -1,9 +1,9 @@
 ﻿// Copyright (c) 2022 Teneko .NET Tools authors and contributors
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using Teronis.Collections.Algorithms.Modifications;
+using Kenet.Collections.Algorithms.Modifications;
 
-namespace Teronis.Collections.Synchronization
+namespace Kenet.Collections.Synchronization
 {
     internal interface ICollectionSynchronizationContext<TItem>
     {

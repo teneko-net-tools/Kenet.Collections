@@ -3,7 +3,7 @@
 
 using System.Collections.Generic;
 
-namespace Teronis.Collections.Synchronization.PostConfigurators
+namespace Kenet.Collections.Synchronization.PostConfigurators
 {
     public class SynchronizableCollectionItemsOptionsPostConfigurator
     {

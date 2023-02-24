@@ -3,7 +3,7 @@
 
 
 
-namespace Teronis.Collections.DataSources.Generic
+namespace Kenet.Collections.DataSources.Generic
 {
     public enum DataSourceEnumerationState
     {

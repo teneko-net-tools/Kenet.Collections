@@ -3,9 +3,9 @@
 
 using System;
 using System.Collections.Generic;
-using Teronis.Collections.Algorithms.Modifications;
+using Kenet.Collections.Algorithms.Modifications;
 
-namespace Teronis.Collections.Synchronization
+namespace Kenet.Collections.Synchronization
 {
     /// <summary>
     /// Represents the delegate for the handler that is called from <see cref="CollectionModificationIterationTools.IteratorBuilder.Iterate"/>.

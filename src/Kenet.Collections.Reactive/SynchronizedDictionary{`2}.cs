@@ -8,10 +8,10 @@ using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using Teronis.Collections.Algorithms.Modifications;
-using Teronis.Collections.Specialized;
+using Kenet.Collections.Algorithms.Modifications;
+using Kenet.Collections.Specialized;
 
-namespace Teronis.Collections.Synchronization
+namespace Kenet.Collections.Synchronization
 {
     public class SynchronizedDictionary<TKey, TItem> : IReadOnlyDictionary<TKey, TItem>
         where TKey : notnull

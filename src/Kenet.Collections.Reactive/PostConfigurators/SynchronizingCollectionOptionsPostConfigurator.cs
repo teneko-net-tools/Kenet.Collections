@@ -4,7 +4,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Teronis.Collections.Synchronization.PostConfigurators
+namespace Kenet.Collections.Synchronization.PostConfigurators
 {
     internal class SynchronizingCollectionOptionsPostConfigurator
     {

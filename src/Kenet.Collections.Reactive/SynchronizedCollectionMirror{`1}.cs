@@ -3,7 +3,7 @@
 
 using System;
 
-namespace Teronis.Collections.Synchronization
+namespace Kenet.Collections.Synchronization
 {
     public class SynchronizedCollectionMirror<TSuperItem>
         where TSuperItem : notnull

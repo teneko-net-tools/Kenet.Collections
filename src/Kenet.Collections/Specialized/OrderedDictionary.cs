@@ -8,10 +8,10 @@ using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using Teronis.Collections.Generic;
-using Teronis.Collections.ObjectModel;
+using Kenet.Collections.Generic;
+using Kenet.Collections.ObjectModel;
 
-namespace Teronis.Collections.Specialized
+namespace Kenet.Collections.Specialized
 {
     /// <summary>
     /// A dictionary object that allows rapid hash lookups using keys, but also

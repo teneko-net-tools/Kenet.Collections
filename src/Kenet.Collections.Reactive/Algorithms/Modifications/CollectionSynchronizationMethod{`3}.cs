@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 
-namespace Teronis.Collections.Algorithms.Modifications
+namespace Kenet.Collections.Algorithms.Modifications
 {
     public abstract class CollectionSynchronizationMethod<TLeftItem, TRightItem, TComparableItem> : ICollectionSynchronizationMethod<TLeftItem, TRightItem>
         where TComparableItem : notnull

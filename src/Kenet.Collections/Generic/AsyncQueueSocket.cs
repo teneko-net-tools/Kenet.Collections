@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks.Dataflow;
 
-namespace Teronis.Collections.Generic
+namespace Kenet.Collections.Generic
 {
     public class AsyncQueueSocket<T> : IAsyncEnumerable<T>, IDisposable
     {

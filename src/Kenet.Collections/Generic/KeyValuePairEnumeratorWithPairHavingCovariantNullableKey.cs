@@ -3,7 +3,7 @@
 
 using System.Collections.Generic;
 
-namespace Teronis.Collections.Generic
+namespace Kenet.Collections.Generic
 {
     public class KeyValuePairEnumeratorWithPairHavingCovariantNullableKey<KeyType, ValueType> : KeyValuePairEnumeratorWithConversionBase<KeyValuePair<IYetNullable<KeyType>, ValueType>, YetNullable<KeyType>, ValueType>
         where KeyType : notnull

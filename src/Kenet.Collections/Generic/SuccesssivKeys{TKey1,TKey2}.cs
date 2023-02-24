@@ -6,7 +6,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using Teronis.Text;
 
-namespace Teronis.Collections.Generic
+namespace Kenet.Collections.Generic
 {
     public readonly struct SuccessiveKeys<TKey1, TKey2> : IOrderedKeysProvider
     {

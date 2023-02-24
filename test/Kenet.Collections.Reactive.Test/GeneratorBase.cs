@@ -4,7 +4,7 @@
 using System.Collections;
 using System.Collections.Generic;
 
-namespace Teronis.Collections.Synchronization
+namespace Kenet.Collections.Synchronization
 {
     public abstract class GeneratorBase<T> : IEnumerable<object[]>
     {

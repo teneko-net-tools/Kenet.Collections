@@ -6,7 +6,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 
-namespace Teronis.Collections.Generic
+namespace Kenet.Collections.Generic
 {
     public interface INullableKeyDictionary<KeyType, ValueType> : IDictionary<KeyType, ValueType>, IDictionary<YetNullable<KeyType>, ValueType>, IEnumerable
         where KeyType : notnull

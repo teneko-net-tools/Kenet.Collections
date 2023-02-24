@@ -6,7 +6,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Teronis.Collections.ObjectModel
+namespace Kenet.Collections.ObjectModel
 {
     public class ReadOnlyList<ItemType> : IReadOnlyList<ItemType>, IList<ItemType>, IList
     {

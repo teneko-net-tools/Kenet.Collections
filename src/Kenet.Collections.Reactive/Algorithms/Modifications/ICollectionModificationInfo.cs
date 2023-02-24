@@ -3,7 +3,7 @@
 
 using System.Collections.Specialized;
 
-namespace Teronis.Collections.Algorithms.Modifications
+namespace Kenet.Collections.Algorithms.Modifications
 {
     public interface ICollectionModificationInfo
     {

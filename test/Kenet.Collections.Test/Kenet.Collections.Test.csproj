@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
-    <RootNamespace>Teronis.Collections</RootNamespace>
+    <RootNamespace>Kenet.Collections</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>

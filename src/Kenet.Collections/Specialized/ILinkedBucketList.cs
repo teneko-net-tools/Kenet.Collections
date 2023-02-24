@@ -4,9 +4,9 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using Teronis.Collections.Generic;
+using Kenet.Collections.Generic;
 
-namespace Teronis.Collections.Specialized
+namespace Kenet.Collections.Specialized
 {
     public interface ILinkedBucketList<KeyType, ValueType> : IReadOnlyLinkedBucketList<KeyType, ValueType>, IReadOnlyList<ValueType>, IEnumerable<ValueType>
         where KeyType : notnull

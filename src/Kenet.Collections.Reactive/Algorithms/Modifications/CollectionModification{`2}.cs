@@ -6,7 +6,7 @@ using System.Collections.Specialized;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 
-namespace Teronis.Collections.Algorithms.Modifications
+namespace Kenet.Collections.Algorithms.Modifications
 {
     /// <summary>
     /// Represents a collection modification. It is the typed version of <see cref="NotifyCollectionChangedEventArgs"/>.

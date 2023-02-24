@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 
-namespace Teronis.Collections.Synchronization
+namespace Kenet.Collections.Synchronization
 {
     public delegate void CollectionChangeRedirectInsert<TItem>(int insertAt, TItem item);
     public delegate void CollectionChangeRedirectMove(int fromIndex, int toIndex, int count);

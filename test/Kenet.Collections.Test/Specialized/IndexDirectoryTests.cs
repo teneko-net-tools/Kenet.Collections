@@ -4,7 +4,7 @@
 using System;
 using Xunit;
 
-namespace Teronis.Collections.Specialized
+namespace Kenet.Collections.Specialized
 {
     public class IndexDirectoryTests : IDisposable
     {

@@ -2,9 +2,9 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System;
-using Teronis.Collections.Generic;
+using Kenet.Collections.Generic;
 
-namespace Teronis.Collections.Specialized
+namespace Kenet.Collections.Specialized
 {
     internal partial class LinkedBucketListBase<KeyType, ValueType>
     {

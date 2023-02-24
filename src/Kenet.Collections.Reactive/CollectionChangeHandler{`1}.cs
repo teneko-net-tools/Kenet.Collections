@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 using Teronis.Extensions;
 
-namespace Teronis.Collections.Synchronization
+namespace Kenet.Collections.Synchronization
 {
     public class CollectionChangeHandler<TItem> : ICollectionChangeHandler<TItem>
     {

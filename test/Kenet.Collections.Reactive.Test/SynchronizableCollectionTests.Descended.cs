@@ -3,10 +3,10 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using Teronis.Collections.Algorithms.Modifications;
+using Kenet.Collections.Algorithms.Modifications;
 using Xunit;
 
-namespace Teronis.Collections.Synchronization
+namespace Kenet.Collections.Synchronization
 {
     public abstract partial class SynchronizableCollectionTests
     {

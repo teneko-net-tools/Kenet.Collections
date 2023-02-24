@@ -7,7 +7,7 @@ using System.Linq;
 using System.Threading;
 using Microsoft.Extensions.Logging;
 
-namespace Teronis.Collections.DataSources.Generic
+namespace Kenet.Collections.DataSources.Generic
 {
     public class EnumerableDataSource<DataType> : AsyncDataSource<DataType>
     {

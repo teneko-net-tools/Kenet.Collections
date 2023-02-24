@@ -4,7 +4,7 @@
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 
-namespace Teronis.Collections.Generic
+namespace Kenet.Collections.Generic
 {
     public class SuccessiveKeysComparer<TKey1, TKey2> : Comparer<SuccessiveKeys<TKey1, TKey2>>, IComparer<SuccessiveKeys<TKey1, TKey2>?>
     {

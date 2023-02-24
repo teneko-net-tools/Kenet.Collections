@@ -3,7 +3,7 @@
 
 using System;
 
-namespace Teronis.Collections.Specialized
+namespace Kenet.Collections.Specialized
 {
     public sealed class IndexDirectoryEntry
     {

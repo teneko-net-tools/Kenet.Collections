@@ -3,9 +3,9 @@
 
 using System;
 using System.Collections.Generic;
-using Teronis.Collections.Specialized;
+using Kenet.Collections.Specialized;
 
-namespace Teronis.Collections.Algorithms.Modifications
+namespace Kenet.Collections.Algorithms.Modifications
 {
     public static class SortedCollectionModifications
     {

@@ -4,9 +4,9 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using Teronis.Collections.Generic;
+using Kenet.Collections.Generic;
 
-namespace Teronis.Collections.ObjectModel
+namespace Kenet.Collections.ObjectModel
 {
     public class ReadOnlyNullableDictionary<KeyType, ValueType> : IReadOnlyNullableKeyDictionary<KeyType, ValueType>
         where KeyType : notnull

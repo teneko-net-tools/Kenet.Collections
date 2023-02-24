@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Running;
-using Teronis.Collections.Algorithms.Modifications;
+using Kenet.Collections.Algorithms.Modifications;
 
 namespace Teronis.NetStandard.Collections.Algorithms.Benchmark
 {

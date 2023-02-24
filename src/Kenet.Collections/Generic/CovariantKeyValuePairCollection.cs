@@ -5,7 +5,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 
-namespace Teronis.Collections.Generic
+namespace Kenet.Collections.Generic
 {
     public class CovariantKeyValuePairCollection<KeyType, ValueType> : IReadOnlyCollection<KeyValuePair<KeyType, ValueType>>, ICovariantKeyValuePairCollection<KeyType, ValueType>
     {
