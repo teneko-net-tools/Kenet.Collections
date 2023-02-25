@@ -133,7 +133,9 @@ namespace Kenet.Collections.Generic
             return dictionary.ContainsKey(key.Value);
         }
 
+#pragma warning disable CS8767 // Nullability of reference types in type of parameter doesn't match implicitly implemented member (possibly because of nullability attributes).
         public bool TryGetValue(YetNullable<TKey> key, [MaybeNullWhen(false)] out TValue value)
+#pragma warning restore CS8767 // Nullability of reference types in type of parameter doesn't match implicitly implemented member (possibly because of nullability attributes).
         {
             if (key.IsNull) {
                 if (nullableKeyValuePair.HasValue) {
@@ -150,7 +152,7 @@ namespace Kenet.Collections.Generic
 
         public CovariantTuple<bool, TValue> FindValue(YetNullable<TKey> key)
         {
-            if (TryGetValue(key, out TValue value)) {
+            if (TryGetValue(key, out var value)) {
                 return new CovariantTuple<bool, TValue>(true, value);
             }
 
@@ -232,8 +234,10 @@ namespace Kenet.Collections.Generic
         bool IDictionary<TKey, TValue>.ContainsKey(TKey key) =>
             ContainsKey(key);
 
+#pragma warning disable CS8769 // Nullability of reference types in type of parameter doesn't match implemented member (possibly because of nullability attributes).
         bool IDictionary<TKey, TValue>.TryGetValue(TKey key, [MaybeNullWhen(false)] out TValue value) =>
             TryGetValue(key, out value);
+#pragma warning restore CS8769 // Nullability of reference types in type of parameter doesn't match implemented member (possibly because of nullability attributes).
 
         #endregion
 
@@ -242,7 +246,9 @@ namespace Kenet.Collections.Generic
         IEnumerable<TKey> IReadOnlyDictionary<TKey, TValue>.Keys => dictionary.Keys;
         IEnumerable<TValue> IReadOnlyDictionary<TKey, TValue>.Values => dictionary.Values;
 
+#pragma warning disable CS8769 // Nullability of reference types in type of parameter doesn't match implemented member (possibly because of nullability attributes).
         bool IReadOnlyDictionary<TKey, TValue>.TryGetValue(TKey key, [MaybeNullWhen(false)] out TValue value)
+#pragma warning restore CS8769 // Nullability of reference types in type of parameter doesn't match implemented member (possibly because of nullability attributes).
         {
             if (key is null) {
                 if (nullableKeyValuePair.HasValue) {
@@ -410,7 +416,7 @@ namespace Kenet.Collections.Generic
 
         #region
 
-        bool ICovariantReadOnlyDictionary<TKey, TValue>.ContainsKey(TKey key) =>
+        bool ICovariantReadOnlyDictionary<TKey, TValue>.ContainsKey([AllowNull]TKey key) =>
             ContainsKey(key);
 
         TValue ICovariantReadOnlyDictionary<TKey, TValue>.this[TKey key] =>
@@ -431,7 +437,7 @@ namespace Kenet.Collections.Generic
         IEnumerable<TKey> ICovariantReadOnlyDictionary<TKey, TValue>.Keys => dictionary.Keys;
         IEnumerable<TValue> ICovariantReadOnlyDictionary<TKey, TValue>.Values => dictionary.Values;
 
-        ICovariantTuple<bool, TValue> ICovariantReadOnlyDictionary<TKey, TValue>.TryGetValue(TKey key) =>
+        ICovariantTuple<bool, TValue> ICovariantReadOnlyDictionary<TKey, TValue>.TryGetValue([AllowNull] TKey key) =>
             FindValue(key);
 
         #endregion

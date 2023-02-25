@@ -6,17 +6,18 @@ using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using Kenet.Collections.Algorithms.Modifications;
-using Kenet.Collections.Synchronization.PostConfigurators;
+using Kenet.Collections.Reactive;
+using Kenet.Collections.Reactive.PostConfigurators;
+using Kenet.Collections.Reactive.SynchronizationMethods;
 
-namespace Kenet.Collections.Synchronization
+namespace Kenet.Collections.Reactive
 {
     public partial class SynchronizableCollection<TItem> : SynchronizableCollectionBase<TItem, TItem>, ICollectionSynchronizationContext<TItem>
         where TItem : notnull
     {
         private static SynchronizableCollectionOptions<TItem> ConfigureOptions(
             [NotNull] ref SynchronizableCollectionOptions<TItem>? options,
-            out ICollectionChangeHandler<TItem> collectionChangeHandler)
+            out IMutableList<TItem> collectionChangeHandler)
         {
             options ??= new SynchronizableCollectionOptions<TItem>();
             SynchronizableCollectionItemsOptionsPostConfigurator.Default.PostConfigure(options.ItemsOptions, out collectionChangeHandler);
@@ -25,16 +26,16 @@ namespace Kenet.Collections.Synchronization
 
         public ICollectionSynchronizationMethod<TItem, TItem> SynchronizationMethod { get; private set; } = null!;
 
-        private ICollectionChangeHandler<TItem> collectionChangeHandler;
-        private CollectionUpdateItemDelegate<TItem, TItem>? itemUpdateHandler;
+        private readonly IMutableList<TItem> _listMutator;
+        private readonly CollectionUpdateItemHandler<TItem, TItem>? _itemUpdateHandler;
 
-        private SynchronizableCollection(SynchronizableCollectionOptions<TItem> options, ICollectionChangeHandler<TItem> collectionChangeHandler)
-            : base(collectionChangeHandler, options.ItemsOptions)
+        private SynchronizableCollection(SynchronizableCollectionOptions<TItem> options, IMutableList<TItem> listMutator)
+            : base(listMutator, options.ItemsOptions)
         {
             options.SynchronizationMethod ??= CollectionSynchronizationMethod.Sequential<TItem>();
             SynchronizationMethod = options.SynchronizationMethod;
-            this.collectionChangeHandler = collectionChangeHandler;
-            itemUpdateHandler = options.ItemsOptions.ItemUpdateHandler;
+            _listMutator = listMutator;
+            _itemUpdateHandler = options.ItemsOptions.ItemUpdateHandler;
         }
 
         public SynchronizableCollection(SynchronizableCollectionOptions<TItem>? options)
@@ -91,13 +92,13 @@ namespace Kenet.Collections.Synchronization
 
         protected virtual void AddItems(ICollectionModification<TItem, TItem> modification)
         {
-            CollectionModificationIterationTools.BeginInsert(modification)
+            CollectionModificationIterationHelper.BeginInsert(modification)
                 // The modification is now null checked.
                 .OnIteration(iterationContext => {
                     CheckReentrancy();
                     var newItem = modification.NewItems![iterationContext.ModificationItemIndex];
                     OnBeforeAddItem(iterationContext.CollectionItemIndex, newItem);
-                    collectionChangeHandler.InsertItem(iterationContext.CollectionItemIndex, newItem);
+                    _listMutator.InsertItem(iterationContext.CollectionItemIndex, newItem);
                     OnCollectionModified(modification);
                     OnAfterAddItem(iterationContext.CollectionItemIndex, newItem);
                 })
@@ -106,11 +107,11 @@ namespace Kenet.Collections.Synchronization
 
         protected virtual void RemoveItems(ICollectionModification<TItem, TItem> modification)
         {
-            CollectionModificationIterationTools.BeginRemove(modification)
+            CollectionModificationIterationHelper.BeginRemove(modification)
                 .OnIteration(iterationContext => {
                     CheckReentrancy();
                     OnBeforeRemoveItem(iterationContext.CollectionItemIndex);
-                    collectionChangeHandler.RemoveItem(iterationContext.CollectionItemIndex);
+                    _listMutator.RemoveItem(iterationContext.CollectionItemIndex);
                     OnCollectionModified(modification);
                     OnAfterRemoveItem(iterationContext.CollectionItemIndex);
                 })
@@ -119,29 +120,29 @@ namespace Kenet.Collections.Synchronization
 
         protected virtual void ReplaceItems(ICollectionModification<TItem, TItem> modification)
         {
-            CollectionModificationIterationTools.BeginReplace(modification)
+            CollectionModificationIterationHelper.BeginReplace(modification)
                 .OnIteration(iterationContext => {
                     var lazyItem = new SlimLazy<TItem>(() => modification.NewItems![iterationContext.ModificationItemIndex]);
 
-                    if (collectionChangeHandler.CanReplaceItem) {
+                    if (_listMutator.CanReplaceItem) {
                         CheckReentrancy();
                         OnBeforeReplaceItem(iterationContext.CollectionItemIndex);
-                        collectionChangeHandler.ReplaceItem(iterationContext.CollectionItemIndex, lazyItem.GetValue);
+                        _listMutator.ReplaceItem(iterationContext.CollectionItemIndex, lazyItem.GetValue);
                         OnCollectionModified(modification);
                         OnBeforeReplaceItem(iterationContext.CollectionItemIndex);
                     }
 
-                    itemUpdateHandler?.Invoke(collectionChangeHandler.Items[iterationContext.CollectionItemIndex], lazyItem.GetValue);
+                    _itemUpdateHandler?.Invoke(_listMutator.Items[iterationContext.CollectionItemIndex], lazyItem.GetValue);
                 })
                 .Iterate();
         }
 
         protected virtual void MoveItems(ICollectionModification<TItem, TItem> modification)
         {
-            CollectionModificationIterationTools.CheckMove(modification);
+            CollectionModificationIterationHelper.CheckMove(modification);
             CheckReentrancy();
             OnBeforeMoveItems();
-            collectionChangeHandler.MoveItems(modification.OldIndex, modification.NewIndex, modification.OldItems!.Count);
+            _listMutator.MoveItems(modification.OldIndex, modification.NewIndex, modification.OldItems!.Count);
             OnCollectionModified(modification);
             OnAfterMoveItems();
         }
@@ -150,7 +151,7 @@ namespace Kenet.Collections.Synchronization
         {
             CheckReentrancy();
             OnBeforeResetItems();
-            collectionChangeHandler.ResetItems();
+            _listMutator.ResetItems();
             OnCollectionModified(modification);
             OnAfterResetItems();
         }
@@ -182,13 +183,13 @@ namespace Kenet.Collections.Synchronization
         /// <param name="leftItems"></param>
         /// <param name="rightItems"></param>
         /// <param name="yieldCapabilities"></param>
-        /// <param name="batchModifications">Indicates that first all modifications are calculated before they get processed.</param>
-        internal void SynchronizeCollection(IEnumerable<TItem> leftItems, IEnumerable<TItem>? rightItems, CollectionModificationYieldCapabilities yieldCapabilities, bool batchModifications)
+        /// <param name="consumeModificationsBeforeProcessing">Indicates that all appearing modifications are consumed immediatelly right after these modifications get lazy returned.</param>
+        internal void SynchronizeCollection(IEnumerator<TItem> leftItems, IEnumerator<TItem>? rightItems, CollectionModificationYieldCapabilities yieldCapabilities, bool consumeModificationsBeforeProcessing)
         {
             leftItems = leftItems ?? throw new ArgumentNullException(nameof(leftItems));
             var modifications = SynchronizationMethod.YieldCollectionModifications(leftItems, rightItems, yieldCapabilities);
 
-            if (batchModifications) {
+            if (consumeModificationsBeforeProcessing) {
                 modifications = modifications.ToList();
             }
 
@@ -208,44 +209,47 @@ namespace Kenet.Collections.Synchronization
             OnCollectionSynchronized();
         }
 
+        internal void SynchronizeCollection(IEnumerable<TItem> leftItems, IEnumerable<TItem>? rightItems, CollectionModificationYieldCapabilities yieldCapabilities, bool consumeModificationsBeforeProcessing) =>
+            SynchronizeCollection(leftItems.GetEnumerator(), rightItems?.GetEnumerator(), yieldCapabilities, consumeModificationsBeforeProcessing);
+
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="enumerable"></param>
+        /// <param name="items"></param>
         /// <param name="yieldCapabilities"></param>
-        /// <param name="batchModifications">Indicates that first all modifications are calculated before they get processed.</param>
-        internal void SynchronizeCollection(IEnumerable<TItem>? enumerable, CollectionModificationYieldCapabilities yieldCapabilities, bool batchModifications) =>
+        /// <param name="consumeModificationsBeforeProcessing">Indicates that first all modifications are calculated before they get processed.</param>
+        internal void SynchronizeCollection(IEnumerable<TItem>? items, CollectionModificationYieldCapabilities yieldCapabilities, bool consumeModificationsBeforeProcessing) =>
             SynchronizeCollection(
-                batchModifications
-                    ? Items // When we batch modifications, then we do not need to mark it.
-                    : Items.AsIList().ToProducedListModificationsNotBatchedMarker(),
-                enumerable,
+                consumeModificationsBeforeProcessing
+                    ? Items.GetEnumerator() // When we consume modifications before processing, then we do not need to mark it.
+                    : Items.AsList().ToIndexBasedEnumerator(),
+                items?.GetEnumerator(),
                 yieldCapabilities,
-                batchModifications);
+                consumeModificationsBeforeProcessing);
 
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="enumerable"></param>
-        /// <param name="batchModifications">Indicates that first all modifications are calculated before they get processed.</param>
-        internal void SynchronizeCollection(IEnumerable<TItem>? enumerable, bool batchModifications) =>
-            SynchronizeCollection(enumerable, CollectionModificationYieldCapabilities.All, batchModifications);
+        /// <param name="items"></param>
+        /// <param name="consumeModificationsBeforeProcessing">Indicates that first all modifications are calculated before they get processed.</param>
+        internal void SynchronizeCollection(IEnumerable<TItem>? items, bool consumeModificationsBeforeProcessing) =>
+            SynchronizeCollection(items, CollectionModificationYieldCapabilities.All, consumeModificationsBeforeProcessing);
 
-        public void SynchronizeCollection(IEnumerable<TItem>? enumerable, CollectionModificationYieldCapabilities yieldCapabilities) =>
-            SynchronizeCollection(enumerable, yieldCapabilities, batchModifications: false);
+        public void SynchronizeCollection(IEnumerable<TItem>? items, CollectionModificationYieldCapabilities yieldCapabilities) =>
+            SynchronizeCollection(items, yieldCapabilities, consumeModificationsBeforeProcessing: false);
 
-        public void SynchronizeCollection(IEnumerable<TItem>? enumerable) =>
-            SynchronizeCollection(enumerable, yieldCapabilities: CollectionModificationYieldCapabilities.All);
+        public void SynchronizeCollection(IEnumerable<TItem>? items) =>
+            SynchronizeCollection(items, yieldCapabilities: CollectionModificationYieldCapabilities.All);
 
         /// <summary>
-        /// Creates for this instance a collection synchronisation mirror. The collection modifications from <paramref name="toBeMirroredCollection"/> are 
+        /// Creates for this instance a collection synchronisation mirror. The collection modifications from <paramref name="mirrorable"/> are 
         /// forwarded to <see cref="ProcessModification(ICollectionModification{TItem, TItem})"/>
         /// of this instance.
         /// </summary>
-        /// <param name="toBeMirroredCollection">The foreign collection that is about to be mirrored related to its modifications.</param>
+        /// <param name="mirrorable">The foreign collection that is about to be mirrored related to its modifications.</param>
         /// <returns>A collection synchronization mirror.</returns>
-        public SynchronizedCollectionMirror<TItem> MirrorSynchronizedCollection(ISynchronizedCollection<TItem> toBeMirroredCollection) =>
-            new SynchronizedCollectionMirror<TItem>(this, toBeMirroredCollection);
+        public SynchronizedCollectionMirror<TItem> BeginMirroring(ISynchronizedCollection<TItem> mirrorable) =>
+            new(this, mirrorable);
 
         #region ICollectionSynchronizationContext<SuperItemType>
 

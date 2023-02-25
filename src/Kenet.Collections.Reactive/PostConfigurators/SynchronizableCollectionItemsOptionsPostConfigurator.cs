@@ -3,17 +3,17 @@
 
 using System.Collections.Generic;
 
-namespace Kenet.Collections.Synchronization.PostConfigurators
+namespace Kenet.Collections.Reactive.PostConfigurators
 {
-    public class SynchronizableCollectionItemsOptionsPostConfigurator
+    internal class SynchronizableCollectionItemsOptionsPostConfigurator
     {
-        public readonly static SynchronizableCollectionItemsOptionsPostConfigurator Default = new SynchronizableCollectionItemsOptionsPostConfigurator();
+        public static readonly SynchronizableCollectionItemsOptionsPostConfigurator Default = new();
 
         public void PostConfigure<TItem>(
-            ISynchronizableCollectionItemsOptions<TItem> itemsOptions, out ICollectionChangeHandler<TItem> collectionChangeHandler)
+            ICollectionItemsOptions<TItem> itemsOptions, out IMutableList<TItem> collectionChangeHandler)
             where TItem : notnull
         {
-            var itemOptionsCollectionChangeHandler = itemsOptions.CollectionChangeHandler;
+            var itemOptionsCollectionChangeHandler = itemsOptions.Items;
 
             if (!(itemOptionsCollectionChangeHandler is null)) {
                 collectionChangeHandler = itemOptionsCollectionChangeHandler;
@@ -21,7 +21,7 @@ namespace Kenet.Collections.Synchronization.PostConfigurators
             }
 
             var items = new List<TItem>();
-            collectionChangeHandler = new CollectionChangeHandler<TItem>(items);
+            collectionChangeHandler = new MutableList<TItem>(items);
             itemsOptions.SetItems(collectionChangeHandler);
         }
     }

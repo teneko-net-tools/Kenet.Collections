@@ -8,12 +8,12 @@ using Teronis.Utils;
 
 namespace Kenet.Collections.Specialized
 {
-    public class IndexDirectory
+    public class IndexDirectory : IReadOnlyIndexDirectory
     {
-        public int Count => virtualizableLength;
+        public int Count => _virtualizableLength;
 
         private List<Entries?> entriesList;
-        private int virtualizableLength;
+        private int _virtualizableLength;
 
         public IndexDirectory() =>
             entriesList = new List<Entries?>();
@@ -42,8 +42,8 @@ namespace Kenet.Collections.Specialized
                 entriesList[index] = entries;
             }
 
-            if (entriesList.Count > virtualizableLength) {
-                virtualizableLength = entriesList.Count;
+            if (entriesList.Count > _virtualizableLength) {
+                _virtualizableLength = entriesList.Count;
             }
 
             return entries;
@@ -55,8 +55,8 @@ namespace Kenet.Collections.Specialized
         /// <param name="toIndex">The index to be used to expand index directory.</param>
         public void Expand(int toIndex)
         {
-            if (toIndex >= virtualizableLength) {
-                virtualizableLength = toIndex + 1;
+            if (toIndex >= _virtualizableLength) {
+                _virtualizableLength = toIndex + 1;
             }
         }
 
@@ -92,7 +92,7 @@ namespace Kenet.Collections.Specialized
             Add(index, IndexDirectoryEntryMode.Normal);
 
         public IndexDirectoryEntry Add(IndexDirectoryEntryMode mode) =>
-            Add(virtualizableLength, mode);
+            Add(_virtualizableLength, mode);
 
         public IndexDirectoryEntry Add() =>
             Add(IndexDirectoryEntryMode.Normal);
@@ -107,7 +107,7 @@ namespace Kenet.Collections.Specialized
         /// <returns>The index entry.</returns>
         public IndexDirectoryEntry Insert(int index, IndexDirectoryEntryMode mode)
         {
-            var entryListsCount = virtualizableLength;
+            var entryListsCount = _virtualizableLength;
 
             if (index >= entryListsCount) {
                 return Add(index, mode);
@@ -116,7 +116,7 @@ namespace Kenet.Collections.Specialized
             var newLastIndex = entryListsCount;
             var indexEntry = new IndexDirectoryEntry(index, mode);
             entriesList.Insert(index, new Entries(new List<IndexDirectoryEntry>() { indexEntry }));
-            virtualizableLength++;
+            _virtualizableLength++;
 
             do {
                 var entryList = entriesList[newLastIndex];
@@ -162,11 +162,11 @@ namespace Kenet.Collections.Specialized
         {
             var indexCount = index + count;
 
-            if (index < 0 || indexCount > virtualizableLength) {
+            if (index < 0 || indexCount > _virtualizableLength) {
                 throw new ArgumentOutOfRangeException(nameof(index));
             }
 
-            virtualizableLength -= count;
+            _virtualizableLength -= count;
 
             var entriesListCount = entriesList.Count;
 
@@ -218,7 +218,7 @@ namespace Kenet.Collections.Specialized
         /// <returns></returns>
         public bool RemoveEntry(IndexDirectoryEntry indexEntry)
         {
-            if (indexEntry.Index >= virtualizableLength) {
+            if (indexEntry.Index >= _virtualizableLength) {
                 throw new ArgumentOutOfRangeException(nameof(indexEntry));
             }
 
@@ -243,11 +243,11 @@ namespace Kenet.Collections.Specialized
                 return;
             }
 
-            if (fromIndex < 0 || fromIndex >= virtualizableLength) {
+            if (fromIndex < 0 || fromIndex >= _virtualizableLength) {
                 new ArgumentOutOfRangeException(nameof(fromIndex));
             }
 
-            if (toIndex < 0 || toIndex >= virtualizableLength) {
+            if (toIndex < 0 || toIndex >= _virtualizableLength) {
                 new ArgumentOutOfRangeException(nameof(toIndex));
             }
 
@@ -382,7 +382,7 @@ namespace Kenet.Collections.Specialized
                 }
             }
 
-            virtualizableLength = lastIndex;
+            _virtualizableLength = lastIndex;
 
             if (lastIndex >= entryListsCount) {
                 return;

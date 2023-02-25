@@ -48,7 +48,7 @@ namespace Kenet.Collections.DataSources.Generic
                 DataType data;
 
                 try {
-                    if (!await enumerator.MoveNextAsync()) {
+                    if (!await enumerator.MoveNextAsync().ConfigureAwait(false)) {
                         break;
                     }
 

@@ -2,9 +2,9 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System;
-using Kenet.Collections.Algorithms.Modifications;
+using Kenet.Collections.Reactive.SynchronizationMethods;
 
-namespace Kenet.Collections.Synchronization
+namespace Kenet.Collections.Reactive
 {
     public class CollectionModifiedEventArgs<TSuperItem, TSubItem> : EventArgs
     {

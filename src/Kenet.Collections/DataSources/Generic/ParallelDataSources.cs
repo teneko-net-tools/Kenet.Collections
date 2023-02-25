@@ -14,7 +14,7 @@ namespace Kenet.Collections.DataSources.Generic
     public class ParallelDataSources<DataType> : AsyncDataSource<DataType>
     {
         private readonly IEnumerable<IAsyncDataSource<DataType>> asyncDataSources;
-        //private CancellationTokenSource asyncDataSourcesCancellationTokenSource;
+        //private CancellationTokenSource _asyncDataSourcesCancellationTokenSource;
 
         public ParallelDataSources(IEnumerable<IAsyncDataSource<DataType>> asyncDataSources, ILogger? logger = null)
             : base(logger)

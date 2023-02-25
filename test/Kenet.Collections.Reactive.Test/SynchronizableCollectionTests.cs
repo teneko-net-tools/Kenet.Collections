@@ -2,10 +2,10 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
-using Kenet.Collections.Algorithms.Modifications;
+using Kenet.Collections.Reactive.SynchronizationMethods;
 using Xunit;
 
-namespace Kenet.Collections.Synchronization
+namespace Kenet.Collections.Reactive
 {
     public abstract partial class SynchronizableCollectionTests
     {
@@ -43,10 +43,10 @@ namespace Kenet.Collections.Synchronization
                 expected = expected ?? rightItems;
                 yieldCapabilities = yieldCapabilities ?? CollectionModificationYieldCapabilities.All;
 
-                Collection.SynchronizeCollection(leftItems, batchModifications: true);
+                Collection.SynchronizeCollection(leftItems, consumeModificationsBeforeProcessing: true);
                 Assert.Equal(leftItems, Collection, EqualityComparer);
 
-                Collection.SynchronizeCollection(rightItems, yieldCapabilities.Value, batchModifications: true);
+                Collection.SynchronizeCollection(rightItems, yieldCapabilities.Value, consumeModificationsBeforeProcessing: true);
                 Assert.Equal(expected, Collection, EqualityComparer);
             }
 
@@ -66,11 +66,11 @@ namespace Kenet.Collections.Synchronization
                 expected = expected ?? rightItems;
                 yieldCapabilities = yieldCapabilities ?? CollectionModificationYieldCapabilities.All;
 
-                Collection.SynchronizeCollection(leftItems, batchModifications: true);
+                Collection.SynchronizeCollection(leftItems, consumeModificationsBeforeProcessing: true);
                 Assert.Equal(leftItems, Collection, EqualityComparer);
 
                 var collection = ToEnumerable(Collection);
-                Collection.SynchronizeCollection(collection, rightItems, yieldCapabilities.Value, batchModifications: true);
+                Collection.SynchronizeCollection(collection, rightItems, yieldCapabilities.Value, consumeModificationsBeforeProcessing: true);
                 Assert.Equal(expected, Collection, EqualityComparer);
             }
 
@@ -83,11 +83,11 @@ namespace Kenet.Collections.Synchronization
                 expected = expected ?? rightItems;
                 yieldCapabilities = yieldCapabilities ?? CollectionModificationYieldCapabilities.All;
 
-                Collection.SynchronizeCollection(leftItems, batchModifications: true);
+                Collection.SynchronizeCollection(leftItems, consumeModificationsBeforeProcessing: true);
                 Assert.Equal(leftItems, Collection, EqualityComparer);
 
                 var collection = ToEnumerable(Collection);
-                Collection.SynchronizeCollection(collection, rightItems, yieldCapabilities.Value, batchModifications: true);
+                Collection.SynchronizeCollection(collection, rightItems, yieldCapabilities.Value, consumeModificationsBeforeProcessing: true);
                 Assert.Equal(expected, Collection, EqualityComparer);
             }
         }

@@ -2,18 +2,17 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System;
-using System.Collections.Generic;
 
-namespace Kenet.Collections.Synchronization.PostConfigurators
+namespace Kenet.Collections.Reactive.PostConfigurators
 {
     internal class SynchronizingCollectionOptionsPostConfigurator
     {
-        public readonly static SynchronizingCollectionOptionsPostConfigurator Default = new SynchronizingCollectionOptionsPostConfigurator();
+        public static readonly SynchronizingCollectionOptionsPostConfigurator Default = new();
 
         public void PostConfigure<TItem>(
             ISynchronizingCollectionItemsOptions<TItem> itemsOptions,
-            out ICollectionChangeHandler<TItem> collectionChangeHandler,
-            Func<ICollectionChangeHandler<TItem>, ISynchronizedCollection<TItem>> synchronizedItemsFactory,
+            out IMutableList<TItem> collectionChangeHandler,
+            Func<IMutableList<TItem>, ISynchronizedCollection<TItem>> synchronizedItemsFactory,
             out ISynchronizedCollection<TItem> synchronizedItems)
             where TItem : notnull
         {

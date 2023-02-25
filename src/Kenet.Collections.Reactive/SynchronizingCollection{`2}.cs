@@ -3,8 +3,9 @@
 
 using System;
 using System.Diagnostics.CodeAnalysis;
+using Kenet.Collections.Reactive;
 
-namespace Kenet.Collections.Synchronization
+namespace Kenet.Collections.Reactive
 {
     public class SynchronizingCollection<TSuperItem, TSubItem> : SynchronizingCollectionBase<TSuperItem, TSubItem>
         where TSuperItem : notnull

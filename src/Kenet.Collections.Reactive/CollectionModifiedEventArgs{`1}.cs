@@ -3,10 +3,10 @@
 
 using System.Collections.Generic;
 using System.Collections.Specialized;
-using Kenet.Collections.Algorithms.Modifications;
 using Kenet.Collections.ObjectModel;
+using Kenet.Collections.Reactive.SynchronizationMethods;
 
-namespace Kenet.Collections.Synchronization
+namespace Kenet.Collections.Reactive
 {
     public class CollectionModifiedEventArgs<TItem> : NotifyCollectionChangedEventArgs, ICollectionModification<TItem, TItem>
     {
@@ -31,18 +31,18 @@ namespace Kenet.Collections.Synchronization
 
         #endregion
 
-        #region ICollectionModificationInfo
+        #region ICollectionModificationData
 
-        int? ICollectionModificationInfo.OldItemsCount =>
+        int? ICollectionModificationData.OldItemsCount =>
             OldPart.Items?.Count;
 
-        int ICollectionModificationInfo.OldIndex =>
+        int ICollectionModificationData.OldIndex =>
             OldPart.Index;
 
-        int? ICollectionModificationInfo.NewItemsCount =>
+        int? ICollectionModificationData.NewItemsCount =>
             NewPart.Items?.Count;
 
-        int ICollectionModificationInfo.NewIndex =>
+        int ICollectionModificationData.NewIndex =>
             NewPart.Index;
 
         #endregion

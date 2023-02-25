@@ -6,11 +6,12 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using Kenet.Collections.Algorithms;
-using Kenet.Collections.Algorithms.Modifications;
-using Kenet.Collections.Synchronization.PostConfigurators;
+using Kenet.Collections.Reactive;
+using Kenet.Collections.Reactive.PostConfigurators;
+using Kenet.Collections.Reactive.SynchronizationMethods;
 using Teronis.Extensions;
 
-namespace Kenet.Collections.Synchronization
+namespace Kenet.Collections.Reactive
 {
     /// <summary>
     /// A synchronizing collection.
@@ -39,25 +40,25 @@ namespace Kenet.Collections.Synchronization
         public ICollectionSynchronizationMethod<TSuperItem, TSuperItem> SynchronizationMethod { get; }
 
         public ISynchronizedCollection<TSuperItem> SuperItems =>
-            superItems;
+            _synchronizedSuperItems;
 
         public ISynchronizedCollection<TSubItem> SubItems =>
-            subItems;
+            _synchronizedSubItems;
 
-        protected ICollectionChangeHandler<TSuperItem> SuperItemChangeHandler =>
-            superItemChangeHandler;
+        protected IMutableList<TSuperItem> SuperItemChangeHandler =>
+            _superItems;
 
-        protected ICollectionChangeHandler<TSubItem> SubItemChangeHandler =>
-            subItemChangeHandler;
+        protected IMutableList<TSubItem> SubItemChangeHandler =>
+            _subItems;
 
-        private CollectionUpdateItemDelegate<TSuperItem, TSubItem>? superItemUpdateHandler;
-        private CollectionUpdateItemDelegate<TSubItem, TSuperItem>? subItemUpdateHandler;
+        private readonly CollectionUpdateItemHandler<TSuperItem, TSubItem>? _superItemUpdateHandler;
+        private readonly CollectionUpdateItemHandler<TSubItem, TSuperItem>? _subItemUpdateHandler;
 
-        private ICollectionChangeHandler<TSuperItem> superItemChangeHandler;
-        private ICollectionChangeHandler<TSubItem> subItemChangeHandler;
+        private readonly IMutableList<TSuperItem> _superItems;
+        private readonly IMutableList<TSubItem> _subItems;
 
-        private ISynchronizedCollection<TSuperItem> superItems;
-        private ISynchronizedCollection<TSubItem> subItems;
+        private readonly ISynchronizedCollection<TSuperItem> _synchronizedSuperItems;
+        private readonly ISynchronizedCollection<TSubItem> _synchronizedSubItems;
 
         public SynchronizingCollectionBase(SynchronizingCollectionOptions<TSuperItem, TSubItem>? options)
         {
@@ -67,18 +68,18 @@ namespace Kenet.Collections.Synchronization
 
             SynchronizingCollectionOptionsPostConfigurator.Default.PostConfigure(
                 options.SuperItemsOptions,
-                out superItemChangeHandler,
+                out _superItems,
                 changeHandler => new SuperItemCollection(changeHandler, options.SuperItemsOptions, this),
-                out superItems);
+                out _synchronizedSuperItems);
 
             SynchronizingCollectionOptionsPostConfigurator.Default.PostConfigure(
                 options.SubItemsOptions,
-                out subItemChangeHandler,
+                out _subItems,
                 changeHandler => new SubItemCollection(changeHandler, options.SubItemsOptions, this),
-                out subItems);
+                out _synchronizedSubItems);
 
-            superItemUpdateHandler = options.SuperItemsOptions.ItemUpdateHandler;
-            subItemUpdateHandler = options.SubItemsOptions.ItemUpdateHandler;
+            _superItemUpdateHandler = options.SuperItemsOptions.ItemUpdateHandler;
+            _subItemUpdateHandler = options.SubItemsOptions.ItemUpdateHandler;
 
             SynchronizationMethod = options.SynchronizationMethod
                 ?? CollectionSynchronizationMethod.Sequential<TSuperItem>();
@@ -128,7 +129,7 @@ namespace Kenet.Collections.Synchronization
         /// <param name="collectionToBeMirrored">The foreign collection that is about to be mirrored related to its modifications.</param>
         /// <returns>A collection synchronization mirror.</returns>
         public SynchronizedCollectionMirror<TSuperItem> MirrorSynchronizedCollection(ISynchronizedCollection<TSuperItem> collectionToBeMirrored) =>
-            new SynchronizedCollectionMirror<TSuperItem>(this, collectionToBeMirrored);
+            new(this, collectionToBeMirrored);
 
         protected virtual void OnAfterAddItem(int itemIndex) { }
 
@@ -140,7 +141,7 @@ namespace Kenet.Collections.Synchronization
 
             TSuperItem superItem = default!;
 
-            CollectionModificationIterationTools.BeginInsert(subSuperItemModification)
+            CollectionModificationIterationHelper.BeginInsert(subSuperItemModification)
                 // subSuperItemModifiactionNewItems is now null checked.
                 .OnIteration(iterationContext => {
                     superItem = subSuperItemModifiactionNewItems[iterationContext.ModificationItemIndex];
@@ -160,7 +161,7 @@ namespace Kenet.Collections.Synchronization
         {
             var superItemModification = applyingModifications.SuperItemModification;
 
-            CollectionModificationIterationTools.BeginRemove(superItemModification)
+            CollectionModificationIterationHelper.BeginRemove(superItemModification)
                 .OnIteration(iterationContext => SuperItemChangeHandler.RemoveItem(iterationContext.CollectionItemIndex))
                 .OnIteration(iterationContext => SubItemChangeHandler.RemoveItem(iterationContext.CollectionItemIndex))
                 .Iterate();
@@ -174,7 +175,7 @@ namespace Kenet.Collections.Synchronization
         protected virtual void MoveItems(ApplyingCollectionModifications applyingModifications)
         {
             var modification = applyingModifications.SuperSubItemModification;
-            CollectionModificationIterationTools.CheckMove(modification);
+            CollectionModificationIterationHelper.CheckMove(modification);
             var oldItemsCount = modification.OldItems!.Count;
             SubItemChangeHandler.MoveItems(modification.OldIndex, modification.NewIndex, oldItemsCount);
             SuperItemChangeHandler.MoveItems(modification.OldIndex, modification.NewIndex, oldItemsCount);
@@ -186,18 +187,18 @@ namespace Kenet.Collections.Synchronization
 
         /// <summary>
         /// Has default implementation: Calls <see cref="SuperItemChangeHandler"/>/<see cref="SubItemChangeHandler"/>
-        /// its <see cref="ICollectionChangeHandler{TItem}.ReplaceItem(int, Func{TItem}, bool)"/>
-        /// method when <see cref="ICollectionChangeHandler{TItem}.CanReplaceItem"/> is true.
+        /// its <see cref="IMutableList{TItem}.ReplaceItem(int, Func{TItem}, bool)"/>
+        /// method when <see cref="IMutableList{TItem}.CanReplaceItem"/> is true.
         /// </summary>
         /// <param name="applyingModifications"></param>
         protected virtual void ReplaceItems(ApplyingCollectionModifications applyingModifications)
         {
-            var canReplaceOrUpdateSuperItem = SuperItemChangeHandler.CanReplaceItem || !(superItemUpdateHandler is null);
-            var canReplaceOrUpdateSubItem = SubItemChangeHandler.CanReplaceItem || !(subItemUpdateHandler is null);
+            var canReplaceOrUpdateSuperItem = SuperItemChangeHandler.CanReplaceItem || !(_superItemUpdateHandler is null);
+            var canReplaceOrUpdateSubItem = SubItemChangeHandler.CanReplaceItem || !(_subItemUpdateHandler is null);
 
             if (canReplaceOrUpdateSuperItem || canReplaceOrUpdateSubItem) {
                 var superItemModification = applyingModifications.SuperItemModification;
-                var iteratorBuilder = CollectionModificationIterationTools.BeginReplace(superItemModification);
+                var iteratorBuilder = CollectionModificationIterationHelper.BeginReplace(superItemModification);
                 var lazyCreatedSubItemByIndex = new Dictionary<int, SlimLazy<TSubItem>>();
                 //int replaceItemIndex = 0;
 
@@ -226,16 +227,16 @@ namespace Kenet.Collections.Synchronization
 
                 void UpdateItem(int modificationItemIndex, int collectionItemIndex)
                 {
-                    if (!(superItemUpdateHandler is null)) {
-                        superItemUpdateHandler(
+                    if (!(_superItemUpdateHandler is null)) {
+                        _superItemUpdateHandler(
                             SuperItemChangeHandler.Items[collectionItemIndex],
                             // We want update with the latest super item (when used
                             // and accessible from user code) and latest sub item.
                             () => lazyCreatedSubItemByIndex[modificationItemIndex].Value);
                     }
 
-                    if (!(subItemUpdateHandler is null)) {
-                        subItemUpdateHandler(
+                    if (!(_subItemUpdateHandler is null)) {
+                        _subItemUpdateHandler(
                             SubItemChangeHandler.Items[collectionItemIndex],
                             () => superItemModification.NewItems![modificationItemIndex]);
                     }
@@ -292,8 +293,8 @@ namespace Kenet.Collections.Synchronization
         {
             var enumerator = SynchronizationMethod
                 .YieldCollectionModifications(
-                    SuperItemChangeHandler.Items.AsIList().ToProducedListModificationsNotBatchedMarker(),
-                    items,
+                    SuperItemChangeHandler.Items.AsList().ToIndexBasedEnumerator(),
+                    items?.GetEnumerator(),
                     yieldCapabilities)
                 .GetEnumerator();
 

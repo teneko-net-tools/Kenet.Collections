@@ -1,7 +1,7 @@
 ﻿// Copyright (c) 2022 Teneko .NET Tools authors and contributors
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-namespace Kenet.Collections.Synchronization
+namespace Kenet.Collections.Reactive
 {
     public class CollectionModificationIterationContext
     {
@@ -9,11 +9,11 @@ namespace Kenet.Collections.Synchronization
         /// The item index in the scope of the modification.
         /// </summary>
         public int ModificationItemIndex {
-            get => modificationItemIndex;
+            get => _modificationItemIndex;
 
             internal set {
-                modificationItemIndex = value;
-                isCollectionIndexDirty = true;
+                _modificationItemIndex = value;
+                _isCollectionIndexDirty = true;
             }
         }
 
@@ -25,18 +25,18 @@ namespace Kenet.Collections.Synchronization
 
         public int CollectionItemIndex {
             get {
-                if (isCollectionIndexDirty) {
-                    collectionItemIndex = CollectionStartIndex + ModificationItemIndex;
-                    isCollectionIndexDirty = false;
+                if (_isCollectionIndexDirty) {
+                    _collectionItemIndex = CollectionStartIndex + ModificationItemIndex;
+                    _isCollectionIndexDirty = false;
                 }
 
-                return collectionItemIndex;
+                return _collectionItemIndex;
             }
         }
 
-        private bool isCollectionIndexDirty;
-        private int collectionItemIndex;
-        private int modificationItemIndex;
+        private bool _isCollectionIndexDirty;
+        private int _collectionItemIndex;
+        private int _modificationItemIndex;
 
         public CollectionModificationIterationContext(int collectionStartIndex) =>
             CollectionStartIndex = collectionStartIndex;

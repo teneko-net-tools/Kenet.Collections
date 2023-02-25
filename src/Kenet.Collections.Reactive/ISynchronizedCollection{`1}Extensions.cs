@@ -4,7 +4,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Kenet.Collections.Synchronization
+namespace Kenet.Collections.Reactive
 {
     public static class ISynchronizedCollectionGenericExtensions
     {
@@ -13,12 +13,12 @@ namespace Kenet.Collections.Synchronization
             Func<TItem, TKey> getItemKey,
             IEqualityComparer<TKey> keyEqualityComparer)
             where TKey : notnull =>
-            new SynchronizedDictionary<TKey, TItem>(collection, getItemKey, keyEqualityComparer);
+            new(collection, getItemKey, keyEqualityComparer);
 
         public static SynchronizedDictionary<KeyType, ItemType> CreateSynchronizedDictionary<ItemType, KeyType>(
             this ISynchronizedCollection<ItemType> collection,
             Func<ItemType, KeyType> getItemKey)
             where KeyType : notnull =>
-            new SynchronizedDictionary<KeyType, ItemType>(collection, getItemKey);
+            new(collection, getItemKey);
     }
 }

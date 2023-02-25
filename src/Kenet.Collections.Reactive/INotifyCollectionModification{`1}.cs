@@ -1,10 +1,10 @@
 ﻿// Copyright (c) 2022 Teneko .NET Tools authors and contributors
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-namespace Kenet.Collections.Synchronization
+namespace Kenet.Collections.Reactive
 {
-    public interface INotifyCollectionModification<TItem>
+    public interface INotifyCollectionModified<TItem>
     {
-        event NotifyNotifyCollectionModifiedEventHandler<TItem> CollectionModified;
+        event NotifyCollectionModifiedEventHandler<TItem> CollectionModified;
     }
 }

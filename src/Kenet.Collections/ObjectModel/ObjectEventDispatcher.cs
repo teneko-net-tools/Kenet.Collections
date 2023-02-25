@@ -9,7 +9,7 @@ namespace Kenet.Collections.ObjectModel
     {
         public event EventHandler<ObjectDispachEventArgs<ObjectType>>? ObjectDispatch;
 
-        private bool isDisposed;
+        private bool _isDisposed;
 
         public void DispatchObject(ObjectType @object)
         {
@@ -19,12 +19,12 @@ namespace Kenet.Collections.ObjectModel
 
         protected virtual void Dispose(bool disposing)
         {
-            if (isDisposed) {
+            if (_isDisposed) {
                 return;
             }
 
             ObjectDispatch = null;
-            isDisposed = true;
+            _isDisposed = true;
         }
 
         ~ObjectEventDispatcher() => Dispose(false);

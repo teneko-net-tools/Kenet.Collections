@@ -8,10 +8,10 @@ using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using Kenet.Collections.Algorithms.Modifications;
+using Kenet.Collections.Reactive.SynchronizationMethods;
 using Kenet.Collections.Specialized;
 
-namespace Kenet.Collections.Synchronization
+namespace Kenet.Collections.Reactive
 {
     public class SynchronizedDictionary<TKey, TItem> : IReadOnlyDictionary<TKey, TItem>
         where TKey : notnull
@@ -53,7 +53,7 @@ namespace Kenet.Collections.Synchronization
         }
 
         public SynchronizedDictionary(ISynchronizedCollection<TItem> itemCollection, Func<TItem, TKey> getItemKey)
-            : this(itemCollection, getItemKey, default(IEqualityComparer<TKey>)) { }
+            : this(itemCollection, getItemKey, keyEqualityComparer: default) { }
 
         public TItem GetItem(TKey key)
         {
@@ -69,7 +69,7 @@ namespace Kenet.Collections.Synchronization
         {
             switch (modification.Action) {
                 case NotifyCollectionChangedAction.Add:
-                    CollectionModificationIterationTools.BeginInsert(modification)
+                    CollectionModificationIterationHelper.BeginInsert(modification)
                         .OnIteration(addedItemIndex => {
                             var itemKey = GetItemKeyDelegate(modification.NewItems![addedItemIndex.ModificationItemIndex]);
                             var indexEntry = indexDirectory.Insert(addedItemIndex.CollectionItemIndex);
@@ -79,7 +79,7 @@ namespace Kenet.Collections.Synchronization
 
                     break;
                 case NotifyCollectionChangedAction.Remove: {
-                        CollectionModificationIterationTools.BeginRemove(modification)
+                        CollectionModificationIterationHelper.BeginRemove(modification)
                             .OnIteration(iterationContext => {
                                 var itemKey = GetItemKeyDelegate(modification.OldItems![iterationContext.ModificationItemIndex]);
                                 var indexEntry = keyedIndexes[itemKey];
@@ -93,7 +93,7 @@ namespace Kenet.Collections.Synchronization
                     // Replace has not affect on calculated keys.
                     break;
                 case NotifyCollectionChangedAction.Move:
-                    CollectionModificationIterationTools.CheckMove(modification);
+                    CollectionModificationIterationHelper.CheckMove(modification);
                     indexDirectory.Move(modification.OldIndex, modification.NewIndex, modification.OldItems!.Count);
                     break;
                 case NotifyCollectionChangedAction.Reset:
@@ -117,7 +117,7 @@ namespace Kenet.Collections.Synchronization
         [return: MaybeNull]
         public TItem GetItemOrDefault(TKey key)
         {
-            if (TryGetItem(key, out TItem item)) {
+            if (TryGetItem(key, out var item)) {
                 return item;
             }
 

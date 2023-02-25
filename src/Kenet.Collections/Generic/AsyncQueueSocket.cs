@@ -34,7 +34,7 @@ namespace Kenet.Collections.Generic
                 while (true) {
                     // Make sure to throw on cancellation so the Task will transfer into a canceled state
                     token.ThrowIfCancellationRequested();
-                    yield return await bufferBlock.ReceiveAsync(token);
+                    yield return await bufferBlock.ReceiveAsync(token).ConfigureAwait(false);
                 }
             }
         }

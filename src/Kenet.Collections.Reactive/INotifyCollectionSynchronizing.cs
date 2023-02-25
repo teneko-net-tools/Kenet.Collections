@@ -3,7 +3,7 @@
 
 using System;
 
-namespace Kenet.Collections.Synchronization
+namespace Kenet.Collections.Reactive
 {
     public interface INotifyCollectionSynchronizing<TItem>
     {

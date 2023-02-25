@@ -2,16 +2,15 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System;
-using System.Collections.Generic;
-using Kenet.Collections.Algorithms.Modifications;
+using Kenet.Collections.Reactive.SynchronizationMethods;
 
-namespace Kenet.Collections.Synchronization
+namespace Kenet.Collections.Reactive
 {
     public abstract partial class SynchronizingCollectionBase<TSuperItem, TSubItem>
     {
         public abstract partial class ItemCollection<TItem, TNewItem> : SynchronizableCollectionBase<TItem, TNewItem>
         {
-            public ItemCollection(ICollectionChangeHandler<TItem> changeHandler, ISynchronizableCollectionItemsOptions<TItem> options, SynchronizingCollectionBase<TSuperItem, TSubItem> synchronizingCollection)
+            public ItemCollection(IMutableList<TItem> changeHandler, ICollectionItemsOptions<TItem> options, SynchronizingCollectionBase<TSuperItem, TSubItem> synchronizingCollection)
                 : base(changeHandler, options)
             {
                 synchronizingCollection.CollectionSynchronizing += SynchronizingCollection_CollectionSynchronizing;
@@ -36,7 +35,7 @@ namespace Kenet.Collections.Synchronization
 
         public class SubItemCollection : ItemCollection<TSubItem, TSuperItem>
         {
-            public SubItemCollection(ICollectionChangeHandler<TSubItem> items, ISynchronizableCollectionItemsOptions<TSubItem> options, SynchronizingCollectionBase<TSuperItem, TSubItem> synchronizingCollection)
+            public SubItemCollection(IMutableList<TSubItem> items, ICollectionItemsOptions<TSubItem> options, SynchronizingCollectionBase<TSuperItem, TSubItem> synchronizingCollection)
                 : base(items, options, synchronizingCollection) { }
 
             protected override ICollectionModification<TSubItem, TSubItem> GetCollectionModification(CollectionModifiedEventArgs<TSuperItem, TSubItem> args) =>
@@ -45,7 +44,7 @@ namespace Kenet.Collections.Synchronization
 
         public class SuperItemCollection : ItemCollection<TSuperItem, TSubItem>
         {
-            public SuperItemCollection(ICollectionChangeHandler<TSuperItem> items, ISynchronizableCollectionItemsOptions<TSuperItem> options, SynchronizingCollectionBase<TSuperItem, TSubItem> synchronizingCollection)
+            public SuperItemCollection(IMutableList<TSuperItem> items, ICollectionItemsOptions<TSuperItem> options, SynchronizingCollectionBase<TSuperItem, TSubItem> synchronizingCollection)
                 : base(items, options, synchronizingCollection) { }
 
             protected override ICollectionModification<TSuperItem, TSuperItem> GetCollectionModification(CollectionModifiedEventArgs<TSuperItem, TSubItem> args) =>

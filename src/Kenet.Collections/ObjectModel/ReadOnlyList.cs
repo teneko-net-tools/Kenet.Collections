@@ -8,24 +8,24 @@ using System.Linq;
 
 namespace Kenet.Collections.ObjectModel
 {
-    public class ReadOnlyList<ItemType> : IReadOnlyList<ItemType>, IList<ItemType>, IList
+    public class ReadOnlyList<TItem> : IReadOnlyList<TItem>, IList<TItem>, IList
     {
         public virtual bool IsSynchronized => false;
 
         public int Count =>
             readOnlyList.Count;
 
-        private readonly IReadOnlyList<ItemType> readOnlyList;
+        private readonly IReadOnlyList<TItem> readOnlyList;
 
         private object? syncRoot;
 
-        public ReadOnlyList(IReadOnlyList<ItemType> readOnlyList) =>
+        public ReadOnlyList(IReadOnlyList<TItem> readOnlyList) =>
             this.readOnlyList = readOnlyList;
 
-        public ItemType this[int index] => 
+        public TItem this[int index] => 
             readOnlyList[index];
 
-        public IEnumerator<ItemType> GetEnumerator() => 
+        public IEnumerator<TItem> GetEnumerator() => 
             readOnlyList.GetEnumerator();
 
         #region IEnumerable
@@ -36,12 +36,12 @@ namespace Kenet.Collections.ObjectModel
 
         #region IList<ItemType>
 
-        ItemType IList<ItemType>.this[int index] {
+        TItem IList<TItem>.this[int index] {
             get => readOnlyList[index];
             set => throw new NotSupportedException();
         }
 
-        int IList<ItemType>.IndexOf(ItemType item)
+        int IList<TItem>.IndexOf(TItem item)
         {
             var index = 0;
 
@@ -56,19 +56,19 @@ namespace Kenet.Collections.ObjectModel
             return -1;
         }
 
-        void IList<ItemType>.Insert(int index, ItemType item) => throw new NotSupportedException();
-        void IList<ItemType>.RemoveAt(int index) => throw new NotSupportedException();
+        void IList<TItem>.Insert(int index, TItem item) => throw new NotSupportedException();
+        void IList<TItem>.RemoveAt(int index) => throw new NotSupportedException();
 
-        bool ICollection<ItemType>.IsReadOnly => true;
+        bool ICollection<TItem>.IsReadOnly => true;
 
-        void ICollection<ItemType>.Add(ItemType item) => throw new NotSupportedException();
-        void ICollection<ItemType>.Clear() => throw new NotSupportedException();
-        bool ICollection<ItemType>.Contains(ItemType item) => readOnlyList.Contains(item);
+        void ICollection<TItem>.Add(TItem item) => throw new NotSupportedException();
+        void ICollection<TItem>.Clear() => throw new NotSupportedException();
+        bool ICollection<TItem>.Contains(TItem item) => readOnlyList.Contains(item);
 
-        void ICollection<ItemType>.CopyTo(ItemType[] array, int arrayIndex) =>
+        void ICollection<TItem>.CopyTo(TItem[] array, int arrayIndex) =>
             ((ICollection)this).CopyTo(array, arrayIndex);
 
-        bool ICollection<ItemType>.Remove(ItemType item) => throw new NotSupportedException();
+        bool ICollection<TItem>.Remove(TItem item) => throw new NotSupportedException();
 
         #endregion
 
@@ -84,7 +84,7 @@ namespace Kenet.Collections.ObjectModel
 
         int IList.Add(object? value) => throw new NotSupportedException();
         void IList.Clear() => throw new NotSupportedException();
-        bool IList.Contains(object? value) => readOnlyList.Contains((ItemType)value);
+        bool IList.Contains(object? value) => readOnlyList.Contains((TItem?)value);
         int IList.IndexOf(object? value) => throw new NotSupportedException();
         void IList.Insert(int index, object? value) => throw new NotSupportedException();
         void IList.Remove(object? value) => throw new NotSupportedException();

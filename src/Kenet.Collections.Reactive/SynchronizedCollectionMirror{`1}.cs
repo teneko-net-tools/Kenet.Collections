@@ -3,28 +3,28 @@
 
 using System;
 
-namespace Kenet.Collections.Synchronization
+namespace Kenet.Collections.Reactive
 {
     public class SynchronizedCollectionMirror<TSuperItem>
         where TSuperItem : notnull
     {
-        private readonly ICollectionSynchronizationContext<TSuperItem> collection;
+        private readonly ICollectionSynchronizationContext<TSuperItem> _source;
 
-        internal SynchronizedCollectionMirror(ICollectionSynchronizationContext<TSuperItem> collection, ISynchronizedCollection<TSuperItem> toBeMirroredCollection)
+        internal SynchronizedCollectionMirror(ICollectionSynchronizationContext<TSuperItem> target, ISynchronizedCollection<TSuperItem> source)
         {
-            toBeMirroredCollection.CollectionSynchronizing += ToBeMirroredCollection_CollectionSynchronizing;
-            toBeMirroredCollection.CollectionModified += ToBeMirroredCollection_CollectionModified;
-            toBeMirroredCollection.CollectionSynchronized += ToBeMirroredCollection_CollectionSynchronized;
-            this.collection = collection;
+            source.CollectionSynchronizing += ToBeMirroredCollection_CollectionSynchronizing;
+            source.CollectionModified += ToBeMirroredCollection_CollectionModified;
+            source.CollectionSynchronized += ToBeMirroredCollection_CollectionSynchronized;
+            _source = target;
         }
 
         private void ToBeMirroredCollection_CollectionSynchronizing(object? sender, EventArgs e) =>
-            collection.BeginCollectionSynchronization();
+            _source.BeginCollectionSynchronization();
 
         private void ToBeMirroredCollection_CollectionModified(object? sender, CollectionModifiedEventArgs<TSuperItem> e) =>
-            collection.ProcessModification(e);
+            _source.ProcessModification(e);
 
         private void ToBeMirroredCollection_CollectionSynchronized(object? sender, EventArgs e) =>
-            collection.EndCollectionSynchronization();
+            _source.EndCollectionSynchronization();
     }
 }

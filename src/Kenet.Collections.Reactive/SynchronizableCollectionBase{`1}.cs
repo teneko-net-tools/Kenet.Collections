@@ -7,20 +7,20 @@ using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
-using Kenet.Collections.Algorithms.Modifications;
-using Teronis.ComponentModel;
 using System.Reactive.Subjects;
+using Kenet.Collections.Reactive.SynchronizationMethods;
+using Teronis.ComponentModel;
 
-namespace Kenet.Collections.Synchronization
+namespace Kenet.Collections.Reactive
 {
     public abstract class SynchronizableCollectionBase<TItem, TNewItem> : Collection<TItem>, ISynchronizedCollection<TItem>
     {
         /* Related to observable collection. */
-        internal protected const string CountString = "Count";
+        protected internal const string CountString = "Count";
         /// <summary>
         /// See https://docs.microsoft.com/en-us/archive/blogs/xtof/binding-to-indexers.
         /// </summary>
-        internal protected const string IndexerName = "Item[]";
+        protected internal const string IndexerName = "Item[]";
 
         public event PropertyChangedEventHandler? PropertyChanged {
             add => ChangeComponent.PropertyChanged += value;
@@ -33,7 +33,7 @@ namespace Kenet.Collections.Synchronization
         }
 
         public event EventHandler? CollectionSynchronizing;
-        public event NotifyNotifyCollectionModifiedEventHandler<TItem>? CollectionModified;
+        public event NotifyCollectionModifiedEventHandler<TItem>? CollectionModified;
 
         private event NotifyCollectionChangedEventHandler? collectionChanged;
 
@@ -46,33 +46,32 @@ namespace Kenet.Collections.Synchronization
 
         protected PropertyChangeComponent ChangeComponent { get; private set; }
 
-        private OccupationMonitor occupationMonitor;
+        private OccupationMonitor _occupationMonitor;
         // We take the Subject<> implementation because it provides full thread-safety.
         private Subject<ICollectionModification<TItem, TItem>> collectionModificationSubject;
-        private readonly ICollectionChangeHandler<TItem> changeHandler;
+        private readonly IMutableList<TItem> changeHandler;
 
-        public SynchronizableCollectionBase(ICollectionChangeHandler<TItem> changeHandler, IReadOnlyCollectionItemsOptions options)
+        public SynchronizableCollectionBase(IMutableList<TItem> changeHandler, IReadOnlyCollectionItemsOptions options)
             : base(changeHandler.Items)
         {
             Initialize();
             this.changeHandler = changeHandler;
-            changeHandler.RedirectInsert += ChangeHandler_RedirectInsert;
-            changeHandler.RedirectRemove += ChangeHandler_RedirectRemove;
-            changeHandler.RedirectReplace += ChangeHandler_RedirectReplace;
-            changeHandler.RedirectMove += ChangeHandler_RedirectMove;
-            changeHandler.RedirectReset += ChangeHandler_RedirectReset;
+            var adapter = new CollectionMutatorAdapter(this);
+            void Mutate(object? _, Action<IListMutationTarget<TItem>> collect) =>
+                collect(adapter);
+            changeHandler.CollectRedirectionTargets += Mutate;
         }
 
         public SynchronizableCollectionBase()
         {
-            changeHandler = new CollectionChangeHandler<TItem>(Items);
+            changeHandler = new MutableList<TItem>(Items);
             Initialize();
         }
 
-        [MemberNotNull(nameof(occupationMonitor), nameof(ChangeComponent), nameof(collectionModificationSubject))]
+        [MemberNotNull(nameof(_occupationMonitor), nameof(ChangeComponent), nameof(collectionModificationSubject))]
         private void Initialize()
         {
-            occupationMonitor = new OccupationMonitor();
+            _occupationMonitor = new OccupationMonitor();
             ChangeComponent = new PropertyChangeComponent(this);
             collectionModificationSubject = new Subject<ICollectionModification<TItem, TItem>>();
         }
@@ -84,12 +83,12 @@ namespace Kenet.Collections.Synchronization
             CollectionSynchronized?.Invoke(this, new EventArgs());
 
         protected virtual CollectionModifiedEventArgs<TItem> CreateCollectionModifiedEventArgs(ICollectionModification<TItem, TItem> modification) =>
-            new CollectionModifiedEventArgs<TItem>(modification);
+            new(modification);
 
         protected IDisposable BlockReentrancy()
         {
-            occupationMonitor.Occupy();
-            return occupationMonitor;
+            _occupationMonitor.Occupy();
+            return _occupationMonitor;
         }
 
         /// <summary>
@@ -122,8 +121,8 @@ namespace Kenet.Collections.Synchronization
         /// </exception>
         protected void CheckReentrancy()
         {
-            if (occupationMonitor.IsOccupied) {
-                int invocationCount = collectionChanged?.GetInvocationList().Length ?? 0
+            if (_occupationMonitor.IsOccupied) {
+                var invocationCount = collectionChanged?.GetInvocationList().Length ?? 0
                     + CollectionModified?.GetInvocationList().Length ?? 0;
 
                 // Excerpt from https://github.com/microsoft/referencesource/blob/5697c29004a34d80acdaf5742d7e699022c64ecd/System/compmod/system/collections/objectmodel/observablecollection.cs:
@@ -147,7 +146,7 @@ namespace Kenet.Collections.Synchronization
         {
             CheckReentrancy();
             OnBeforeAddItem(itemIndex, item);
-            changeHandler.InsertItem(itemIndex, item, preventInsertRedirect: true);
+            changeHandler.Mutate(collection => collection.InsertItem(itemIndex, item), disableRedirection: true);
             var modification = CollectionModification.ForAdd<TItem, TItem>(itemIndex, item);
             OnCollectionModified(modification);
             OnAfterAddItem(itemIndex, item);
@@ -167,7 +166,7 @@ namespace Kenet.Collections.Synchronization
             CheckReentrancy();
             OnBeforeRemoveItem(itemIndex);
             var oldItem = Items[itemIndex];
-            changeHandler.RemoveItem(itemIndex, preventRemoveRedirect: true);
+            changeHandler.Mutate(collection => collection.RemoveItem(itemIndex), disableRedirection: true);
             var modification = CollectionModification.ForRemove<TItem, TItem>(itemIndex, oldItem);
             OnCollectionModified(modification);
             OnAfterRemoveItem(itemIndex);
@@ -187,7 +186,7 @@ namespace Kenet.Collections.Synchronization
             CheckReentrancy();
             OnBeforeReplaceItem(itemIndex);
             var oldItem = Items[itemIndex];
-            changeHandler.ReplaceItem(itemIndex, () => item, preventReplaceRedirect: true);
+            changeHandler.Mutate(collection => collection.ReplaceItem(itemIndex, () => item), disableRedirection: true);
             var modification = CollectionModification.ForReplace(itemIndex, oldItem, item);
             OnCollectionModified(modification);
             OnAfterReplaceItem(itemIndex);
@@ -206,7 +205,7 @@ namespace Kenet.Collections.Synchronization
         {
             CheckReentrancy();
             OnBeforeMoveItems();
-            changeHandler.MoveItems(fromIndex, toIndex, count, preventMoveRedirect: true);
+            changeHandler.Mutate(collection => collection.MoveItems(fromIndex, toIndex, count), disableRedirection: true);
             var modification = CollectionModification.ForMove<TItem, TItem>(fromIndex, Items, toIndex, count);
             OnCollectionModified(modification);
             OnAfterMoveItems();
@@ -231,7 +230,7 @@ namespace Kenet.Collections.Synchronization
         {
             CheckReentrancy();
             OnBeforeResetItems();
-            changeHandler.ResetItems(preventResetRedirect: true);
+            changeHandler.Mutate(collection => collection.ResetItems(), disableRedirection: true);
             OnCollectionModified(CollectionModification.ForReset<TItem, TItem>());
             OnAfterResetItems();
         }
@@ -244,27 +243,50 @@ namespace Kenet.Collections.Synchronization
 
         public SynchronizedDictionary<TKey, TItem> ToSynchronizedDictionary<TKey>(Func<TItem, TKey> getItemKey, IEqualityComparer<TKey> keyEqualityComparer)
             where TKey : notnull =>
-            new SynchronizedDictionary<TKey, TItem>(this, getItemKey, keyEqualityComparer);
+            new(this, getItemKey, keyEqualityComparer);
 
         public SynchronizedDictionary<KeyType, TItem> ToSynchronizedDictionary<KeyType>(Func<TItem, KeyType> getItemKey)
             where KeyType : notnull =>
-            new SynchronizedDictionary<KeyType, TItem>(this, getItemKey);
+            new(this, getItemKey);
 
         /// <summary>
         /// Helps to detect reentrances.
         /// </summary>
         private class OccupationMonitor : IDisposable
         {
-            int occupationCount;
+            private int _occupationCount;
 
             public void Occupy() =>
-                ++occupationCount;
+                ++_occupationCount;
 
             public void Dispose() =>
-                --occupationCount;
+                --_occupationCount;
 
             public bool IsOccupied =>
-                occupationCount > 0;
+                _occupationCount > 0;
+        }
+
+        private class CollectionMutatorAdapter : IListMutationTarget<TItem>
+        {
+            private readonly SynchronizableCollectionBase<TItem, TNewItem> _collection;
+
+            public CollectionMutatorAdapter(SynchronizableCollectionBase<TItem, TNewItem> collection) =>
+                _collection = collection;
+
+            public void InsertItem(int insertAt, TItem item) =>
+                _collection.InsertItem(insertAt, item);
+
+            public void MoveItems(int fromIndex, int toIndex, int count) =>
+                _collection.MoveItems(fromIndex, toIndex, count);
+
+            public void RemoveItem(int removeAt) =>
+                _collection.RemoveItem(removeAt);
+
+            public void ReplaceItem(int replaceAt, Func<TItem> getNewItem) =>
+                _collection.SetItem(replaceAt, getNewItem());
+
+            public void ResetItems() =>
+                _collection.ClearItems();
         }
     }
 }

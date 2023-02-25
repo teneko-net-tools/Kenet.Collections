@@ -31,14 +31,18 @@ namespace Kenet.Collections.ObjectModel
         public bool ContainsKey(YetNullable<KeyType> key) =>
             ((IReadOnlyNullableKeyDictionary<KeyType, ValueType>)dictionary).ContainsKey(key);
 
+#pragma warning disable CS8767 // Nullability of reference types in type of parameter doesn't match implicitly implemented member (possibly because of nullability attributes).
         public bool TryGetValue(YetNullable<KeyType> key, [MaybeNullWhen(false)] out ValueType value) =>
             ((IReadOnlyNullableKeyDictionary<KeyType, ValueType>)dictionary).TryGetValue(key, out value);
+#pragma warning restore CS8767 // Nullability of reference types in type of parameter doesn't match implicitly implemented member (possibly because of nullability attributes).
 
-        public bool ContainsKey(KeyType key) =>
-            ((IReadOnlyDictionary<KeyType, ValueType>)dictionary).ContainsKey(key);
+        public bool ContainsKey([AllowNull]KeyType key) =>
+            ((IReadOnlyDictionary<KeyType, ValueType>)dictionary).ContainsKey(key!);
 
+#pragma warning disable CS8767 // Nullability of reference types in type of parameter doesn't match implicitly implemented member (possibly because of nullability attributes).
         public bool TryGetValue(KeyType key, [MaybeNullWhen(false)] out ValueType value) =>
             ((IReadOnlyDictionary<KeyType, ValueType>)dictionary).TryGetValue(key, out value);
+#pragma warning restore CS8767 // Nullability of reference types in type of parameter doesn't match implicitly implemented member (possibly because of nullability attributes).
 
         public ValueType this[KeyType key] =>
             ((IReadOnlyDictionary<KeyType, ValueType>)dictionary)[key];
@@ -46,7 +50,7 @@ namespace Kenet.Collections.ObjectModel
         public IEnumerator<KeyValuePair<YetNullable<KeyType>, ValueType>> GetEnumerator() =>
             ((IReadOnlyNullableKeyDictionary<KeyType, ValueType>)dictionary).GetEnumerator();
 
-        ICovariantTuple<bool, ValueType> ICovariantReadOnlyDictionary<KeyType, ValueType>.TryGetValue(KeyType key) => ((ICovariantReadOnlyDictionary<KeyType, ValueType>)dictionary).TryGetValue(key);
+        ICovariantTuple<bool, ValueType> ICovariantReadOnlyDictionary<KeyType, ValueType>.TryGetValue([AllowNull]KeyType key) => ((ICovariantReadOnlyDictionary<KeyType, ValueType>)dictionary).TryGetValue(key);
 
         ICovariantTuple<bool, ValueType> ICovariantReadOnlyNullableKeyDictionary<KeyType, ValueType>.TryGetValue(YetNullable<KeyType> key) => ((ICovariantReadOnlyNullableKeyDictionary<KeyType, ValueType>)dictionary).TryGetValue(key);
 

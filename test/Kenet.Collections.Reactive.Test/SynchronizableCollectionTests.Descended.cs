@@ -3,10 +3,11 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using Kenet.Collections.Algorithms.Modifications;
+using Kenet.Collections.Reactive;
+using Kenet.Collections.Reactive.SynchronizationMethods;
 using Xunit;
 
-namespace Kenet.Collections.Synchronization
+namespace Kenet.Collections.Reactive
 {
     public abstract partial class SynchronizableCollectionTests
     {
@@ -17,10 +18,10 @@ namespace Kenet.Collections.Synchronization
 
             public Descended() : base(
                 new SynchronizableCollection<Number>(
-                    new SynchronizableCollectionOptions<Number>()
-                    .ConfigureItems(options => options
-                        .SetItems(CollectionChangeHandler<Number>.ItemReplacableCollectionChangeBehaviour.Default))
-                    .SetSortedSynchronizationMethod(Number.Comparer.Descended)))
+                    SynchronizableCollectionOptions.Create<Number>()
+                        .ConfigureItems(options => options
+                            .SetItems(MutableList<Number>.ItemReplacableCollectionChangeBehaviour.Default))
+                        .SetSortedSynchronizationMethod(Number.Comparer.Descended)))
             { }
 
             [Theory]

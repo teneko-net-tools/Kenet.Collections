@@ -3,7 +3,7 @@
 
 using System;
 
-namespace Kenet.Collections.Synchronization
+namespace Kenet.Collections.Reactive
 {
     // TODO: Consider to remove <TItem>.
     public interface INotifyCollectionSynchronized<TItem>

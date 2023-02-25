@@ -3,14 +3,14 @@
 
 using System;
 
-namespace Kenet.Collections.Synchronization
+namespace Kenet.Collections.Reactive
 {
     internal static class CollectionModificationThrowHelper
     {
         public static ArgumentException NewItemsWereNullException() =>
-            new ArgumentException("The new-items were null that cannot be used during collection modification.");
+            new("The new-items were null that cannot be used during collection modification.");
 
         public static ArgumentException OldItemsWereNullException() =>
-            new ArgumentException("The old-items were null and cannot be used during collection modification.");
+            new("The old-items were null and cannot be used during collection modification.");
     }
 }

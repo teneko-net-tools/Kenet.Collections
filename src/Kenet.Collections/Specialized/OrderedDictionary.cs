@@ -394,7 +394,7 @@ namespace Kenet.Collections.Specialized
         #region IDictionary
 
         void IDictionary.Add(object key, object? value) =>
-            Add((K)key, (V)value);
+            Add((K)key, (V?)value);
 
         void IDictionary.Clear() =>
             Clear();
