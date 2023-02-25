@@ -10,19 +10,19 @@ namespace Kenet.Collections.Reactive.PostConfigurators
         public static readonly SynchronizableCollectionItemsOptionsPostConfigurator Default = new();
 
         public void PostConfigure<TItem>(
-            ICollectionItemsOptions<TItem> itemsOptions, out IMutableList<TItem> collectionChangeHandler)
+            ICollectionItemsOptions<TItem> itemsOptions, out IListMutationTarget<TItem> itemsMutationTarget)
             where TItem : notnull
         {
-            var itemOptionsCollectionChangeHandler = itemsOptions.Items;
+            var itemOptionsCollectionChangeHandler = itemsOptions.ItemsMutationTarget;
 
             if (!(itemOptionsCollectionChangeHandler is null)) {
-                collectionChangeHandler = itemOptionsCollectionChangeHandler;
+                itemsMutationTarget = itemOptionsCollectionChangeHandler;
                 return;
             }
 
             var items = new List<TItem>();
-            collectionChangeHandler = new MutableList<TItem>(items);
-            itemsOptions.SetItems(collectionChangeHandler);
+            itemsMutationTarget = new ListMutationTarget<TItem>(items);
+            itemsOptions.SetItems(itemsMutationTarget);
         }
     }
 }

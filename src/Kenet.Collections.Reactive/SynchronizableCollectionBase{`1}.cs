@@ -16,11 +16,12 @@ namespace Kenet.Collections.Reactive
     public abstract class SynchronizableCollectionBase<TItem, TNewItem> : Collection<TItem>, ISynchronizedCollection<TItem>
     {
         /* Related to observable collection. */
-        protected internal const string CountString = "Count";
+        protected internal const string CountPropertyName = "Count";
+
         /// <summary>
         /// See https://docs.microsoft.com/en-us/archive/blogs/xtof/binding-to-indexers.
         /// </summary>
-        protected internal const string IndexerName = "Item[]";
+        protected internal const string IndexerPropertyName = "Item[]";
 
         public event PropertyChangedEventHandler? PropertyChanged {
             add => ChangeComponent.PropertyChanged += value;
@@ -49,22 +50,24 @@ namespace Kenet.Collections.Reactive
         private OccupationMonitor _occupationMonitor;
         // We take the Subject<> implementation because it provides full thread-safety.
         private Subject<ICollectionModification<TItem, TItem>> collectionModificationSubject;
-        private readonly IMutableList<TItem> changeHandler;
+        private readonly IListMutationTarget<TItem> _itemsMutationTarget;
 
-        public SynchronizableCollectionBase(IMutableList<TItem> changeHandler, IReadOnlyCollectionItemsOptions options)
-            : base(changeHandler.Items)
+        public SynchronizableCollectionBase(IListMutationTarget<TItem> itemsMutationTarget, IReadOnlyCollectionItemsOptions options)
+            : base(itemsMutationTarget.Items)
         {
             Initialize();
-            this.changeHandler = changeHandler;
-            var adapter = new CollectionMutatorAdapter(this);
-            void Mutate(object? _, Action<IListMutationTarget<TItem>> collect) =>
-                collect(adapter);
-            changeHandler.CollectRedirectionTargets += Mutate;
+            _itemsMutationTarget = itemsMutationTarget;
+            var collectionMutationTargetAdapter = new CollectionMutationTargetAdapter(this);
+
+            void Mutate(object? _, Action<IMutationTarget<TItem>> collect) =>
+                collect(collectionMutationTargetAdapter);
+
+            itemsMutationTarget.CollectRedirectionTargets += Mutate;
         }
 
         public SynchronizableCollectionBase()
         {
-            changeHandler = new MutableList<TItem>(Items);
+            _itemsMutationTarget = new ListMutationTarget<TItem>(Items);
             Initialize();
         }
 
@@ -137,82 +140,70 @@ namespace Kenet.Collections.Reactive
         }
 
         protected virtual void OnBeforeAddItem(int itemIndex, TItem item) =>
-            ChangeComponent.OnPropertyChanging(CountString, IndexerName);
+            ChangeComponent.OnPropertyChanging(CountPropertyName, IndexerPropertyName);
 
         protected virtual void OnAfterAddItem(int itemIndex, TItem item) =>
-            ChangeComponent.OnPropertyChanged(CountString, IndexerName);
+            ChangeComponent.OnPropertyChanged(CountPropertyName, IndexerPropertyName);
 
         protected override void InsertItem(int itemIndex, TItem item)
         {
             CheckReentrancy();
             OnBeforeAddItem(itemIndex, item);
-            changeHandler.Mutate(collection => collection.InsertItem(itemIndex, item), disableRedirection: true);
+            _itemsMutationTarget.Mutate(collection => collection.InsertItem(itemIndex, item), disableRedirection: true);
             var modification = CollectionModification.ForAdd<TItem, TItem>(itemIndex, item);
             OnCollectionModified(modification);
             OnAfterAddItem(itemIndex, item);
         }
 
-        private void ChangeHandler_RedirectInsert(int insertAt, TItem item) =>
-            InsertItem(insertAt, item);
-
         protected virtual void OnBeforeRemoveItem(int itemIndex) =>
-            ChangeComponent.OnPropertyChanging(CountString, IndexerName);
+            ChangeComponent.OnPropertyChanging(CountPropertyName, IndexerPropertyName);
 
         protected virtual void OnAfterRemoveItem(int itemIndex) =>
-            ChangeComponent.OnPropertyChanged(CountString, IndexerName);
+            ChangeComponent.OnPropertyChanged(CountPropertyName, IndexerPropertyName);
 
         protected override void RemoveItem(int itemIndex)
         {
             CheckReentrancy();
             OnBeforeRemoveItem(itemIndex);
             var oldItem = Items[itemIndex];
-            changeHandler.Mutate(collection => collection.RemoveItem(itemIndex), disableRedirection: true);
+            _itemsMutationTarget.Mutate(collection => collection.RemoveItem(itemIndex), disableRedirection: true);
             var modification = CollectionModification.ForRemove<TItem, TItem>(itemIndex, oldItem);
             OnCollectionModified(modification);
             OnAfterRemoveItem(itemIndex);
         }
 
-        private void ChangeHandler_RedirectRemove(int removeAt) =>
-            RemoveItem(removeAt);
-
         protected virtual void OnBeforeReplaceItem(int itemIndex) =>
-            ChangeComponent.OnPropertyChanging(IndexerName);
+            ChangeComponent.OnPropertyChanging(IndexerPropertyName);
 
         protected virtual void OnAfterReplaceItem(int itemIndex) =>
-            ChangeComponent.OnPropertyChanged(IndexerName);
+            ChangeComponent.OnPropertyChanged(IndexerPropertyName);
 
         protected override void SetItem(int itemIndex, TItem item)
         {
             CheckReentrancy();
             OnBeforeReplaceItem(itemIndex);
             var oldItem = Items[itemIndex];
-            changeHandler.Mutate(collection => collection.ReplaceItem(itemIndex, () => item), disableRedirection: true);
+            _itemsMutationTarget.Mutate(collection => collection.ReplaceItem(itemIndex, () => item), disableRedirection: true);
             var modification = CollectionModification.ForReplace(itemIndex, oldItem, item);
             OnCollectionModified(modification);
             OnAfterReplaceItem(itemIndex);
         }
 
-        private void ChangeHandler_RedirectReplace(int replaceAt, Func<TItem> getNewItem) =>
-            SetItem(replaceAt, getNewItem());
-
         protected virtual void OnBeforeMoveItems() =>
-            ChangeComponent.OnPropertyChanging(IndexerName);
+            ChangeComponent.OnPropertyChanging(IndexerPropertyName);
 
         protected virtual void OnAfterMoveItems() =>
-            ChangeComponent.OnPropertyChanged(IndexerName);
+            ChangeComponent.OnPropertyChanged(IndexerPropertyName);
 
         protected virtual void MoveItems(int fromIndex, int toIndex, int count)
         {
             CheckReentrancy();
             OnBeforeMoveItems();
-            changeHandler.Mutate(collection => collection.MoveItems(fromIndex, toIndex, count), disableRedirection: true);
+            _itemsMutationTarget.Mutate(collection => collection.MoveItems(fromIndex, toIndex, count), disableRedirection: true);
             var modification = CollectionModification.ForMove<TItem, TItem>(fromIndex, Items, toIndex, count);
             OnCollectionModified(modification);
             OnAfterMoveItems();
         }
-
-        private void ChangeHandler_RedirectMove(int fromIndex, int toIndex, int count) =>
-            MoveItems(fromIndex, toIndex, count);
 
         public void Move(int fromIndex, int toIndex, int count) =>
             MoveItems(fromIndex, toIndex, count);
@@ -221,22 +212,19 @@ namespace Kenet.Collections.Reactive
             MoveItems(fromIndex, toIndex, 1);
 
         protected virtual void OnBeforeResetItems() =>
-            ChangeComponent.OnPropertyChanging(CountString, IndexerName);
+            ChangeComponent.OnPropertyChanging(CountPropertyName, IndexerPropertyName);
 
         protected virtual void OnAfterResetItems() =>
-            ChangeComponent.OnPropertyChanged(CountString, IndexerName);
+            ChangeComponent.OnPropertyChanged(CountPropertyName, IndexerPropertyName);
 
         protected override void ClearItems()
         {
             CheckReentrancy();
             OnBeforeResetItems();
-            changeHandler.Mutate(collection => collection.ResetItems(), disableRedirection: true);
+            _itemsMutationTarget.Mutate(collection => collection.ResetItems(), disableRedirection: true);
             OnCollectionModified(CollectionModification.ForReset<TItem, TItem>());
             OnAfterResetItems();
         }
-
-        private void ChangeHandler_RedirectReset() =>
-            ClearItems();
 
         public IDisposable Subscribe(IObserver<ICollectionModification<TItem, TItem>> observer) =>
             collectionModificationSubject.Subscribe(observer);
@@ -266,11 +254,11 @@ namespace Kenet.Collections.Reactive
                 _occupationCount > 0;
         }
 
-        private class CollectionMutatorAdapter : IListMutationTarget<TItem>
+        private class CollectionMutationTargetAdapter : IMutationTarget<TItem>
         {
             private readonly SynchronizableCollectionBase<TItem, TNewItem> _collection;
 
-            public CollectionMutatorAdapter(SynchronizableCollectionBase<TItem, TNewItem> collection) =>
+            public CollectionMutationTargetAdapter(SynchronizableCollectionBase<TItem, TNewItem> collection) =>
                 _collection = collection;
 
             public void InsertItem(int insertAt, TItem item) =>

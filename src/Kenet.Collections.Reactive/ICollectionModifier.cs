@@ -6,7 +6,7 @@ using System.Collections.Generic;
 
 namespace Kenet.Collections.Reactive
 {
-    public interface IStatelessCollectionMutator<TItem>
+    public interface IListMutator<TItem>
     {
         /// <summary>
         /// Indicates whether <see cref="ReplaceItem(IList{TItem}, int, Func{TItem})"/> is functional and ready to be called.

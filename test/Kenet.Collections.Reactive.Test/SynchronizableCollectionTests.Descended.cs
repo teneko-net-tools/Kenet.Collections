@@ -20,7 +20,7 @@ namespace Kenet.Collections.Reactive
                 new SynchronizableCollection<Number>(
                     SynchronizableCollectionOptions.Create<Number>()
                         .ConfigureItems(options => options
-                            .SetItems(MutableList<Number>.ItemReplacableCollectionChangeBehaviour.Default))
+                            .SetItems(ListMutationTarget<Number>.ItemReplacableCollectionChangeBehaviour.Default))
                         .SetSortedSynchronizationMethod(Number.Comparer.Descended)))
             { }
 

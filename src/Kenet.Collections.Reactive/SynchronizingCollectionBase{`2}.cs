@@ -45,17 +45,17 @@ namespace Kenet.Collections.Reactive
         public ISynchronizedCollection<TSubItem> SubItems =>
             _synchronizedSubItems;
 
-        protected IMutableList<TSuperItem> SuperItemChangeHandler =>
-            _superItems;
+        protected IListMutationTarget<TSuperItem> SuperItemsMutationTarget =>
+            _superItemsMutationTarget;
 
-        protected IMutableList<TSubItem> SubItemChangeHandler =>
-            _subItems;
+        protected IListMutationTarget<TSubItem> SubItemsMutationTarget =>
+            _subItemsMutationTarget;
 
         private readonly CollectionUpdateItemHandler<TSuperItem, TSubItem>? _superItemUpdateHandler;
         private readonly CollectionUpdateItemHandler<TSubItem, TSuperItem>? _subItemUpdateHandler;
 
-        private readonly IMutableList<TSuperItem> _superItems;
-        private readonly IMutableList<TSubItem> _subItems;
+        private readonly IListMutationTarget<TSuperItem> _superItemsMutationTarget;
+        private readonly IListMutationTarget<TSubItem> _subItemsMutationTarget;
 
         private readonly ISynchronizedCollection<TSuperItem> _synchronizedSuperItems;
         private readonly ISynchronizedCollection<TSubItem> _synchronizedSubItems;
@@ -68,13 +68,13 @@ namespace Kenet.Collections.Reactive
 
             SynchronizingCollectionOptionsPostConfigurator.Default.PostConfigure(
                 options.SuperItemsOptions,
-                out _superItems,
+                out _superItemsMutationTarget,
                 changeHandler => new SuperItemCollection(changeHandler, options.SuperItemsOptions, this),
                 out _synchronizedSuperItems);
 
             SynchronizingCollectionOptionsPostConfigurator.Default.PostConfigure(
                 options.SubItemsOptions,
-                out _subItems,
+                out _subItemsMutationTarget,
                 changeHandler => new SubItemCollection(changeHandler, options.SubItemsOptions, this),
                 out _synchronizedSubItems);
 
@@ -119,7 +119,7 @@ namespace Kenet.Collections.Reactive
         protected virtual void ConfigureItems(SynchronizingCollectionOptions<TSuperItem, TSubItem> options)
         { }
 
-        protected abstract TSubItem CreateSubItem(TSuperItem superItem);
+        protected abstract TSubItem SelectSubItem(TSuperItem superItem);
 
         /// <summary>
         /// Creates for this instance a collection synchronisation mirror. The collection modifications from <paramref name="collectionToBeMirrored"/> are 
@@ -135,21 +135,21 @@ namespace Kenet.Collections.Reactive
 
         protected virtual void AddItems(ApplyingCollectionModifications applyingModifications)
         {
-            var subSuperItemModification = applyingModifications.SuperSubItemModification;
+            var superSubItemModification = applyingModifications.SuperSubItemModification;
             // ! because we use it at null checked location because it gets null checked before.
-            var subSuperItemModifiactionNewItems = subSuperItemModification.NewItems!;
+            var newSuperItems = superSubItemModification.NewItems!;
 
             TSuperItem superItem = default!;
 
-            CollectionModificationIterationHelper.BeginInsert(subSuperItemModification)
+            CollectionModificationIterationHelper.BeginInsert(superSubItemModification)
                 // subSuperItemModifiactionNewItems is now null checked.
                 .OnIteration(iterationContext => {
-                    superItem = subSuperItemModifiactionNewItems[iterationContext.ModificationItemIndex];
-                    SuperItemChangeHandler.InsertItem(iterationContext.CollectionItemIndex, superItem);
+                    superItem = newSuperItems[iterationContext.ModificationItemIndex];
+                    SuperItemsMutationTarget.InsertItem(iterationContext.CollectionItemIndex, superItem);
                 })
                 .OnIteration(iterationContext => {
-                    var subItem = CreateSubItem(superItem);
-                    SubItemChangeHandler.InsertItem(iterationContext.CollectionItemIndex, subItem);
+                    var subItem = SelectSubItem(superItem);
+                    SubItemsMutationTarget.InsertItem(iterationContext.CollectionItemIndex, subItem);
                 })
                 .OnIteration(iterationContext => OnAfterAddItem(iterationContext.CollectionItemIndex))
                 .Iterate();
@@ -162,8 +162,8 @@ namespace Kenet.Collections.Reactive
             var superItemModification = applyingModifications.SuperItemModification;
 
             CollectionModificationIterationHelper.BeginRemove(superItemModification)
-                .OnIteration(iterationContext => SuperItemChangeHandler.RemoveItem(iterationContext.CollectionItemIndex))
-                .OnIteration(iterationContext => SubItemChangeHandler.RemoveItem(iterationContext.CollectionItemIndex))
+                .OnIteration(iterationContext => SuperItemsMutationTarget.RemoveItem(iterationContext.CollectionItemIndex))
+                .OnIteration(iterationContext => SubItemsMutationTarget.RemoveItem(iterationContext.CollectionItemIndex))
                 .Iterate();
         }
 
@@ -177,8 +177,8 @@ namespace Kenet.Collections.Reactive
             var modification = applyingModifications.SuperSubItemModification;
             CollectionModificationIterationHelper.CheckMove(modification);
             var oldItemsCount = modification.OldItems!.Count;
-            SubItemChangeHandler.MoveItems(modification.OldIndex, modification.NewIndex, oldItemsCount);
-            SuperItemChangeHandler.MoveItems(modification.OldIndex, modification.NewIndex, oldItemsCount);
+            SubItemsMutationTarget.MoveItems(modification.OldIndex, modification.NewIndex, oldItemsCount);
+            SuperItemsMutationTarget.MoveItems(modification.OldIndex, modification.NewIndex, oldItemsCount);
         }
 
         protected virtual void OnBeforeReplaceItem(int itemIndex) { }
@@ -186,15 +186,15 @@ namespace Kenet.Collections.Reactive
         protected virtual void OnAfterReplaceItem(int itemIndex) { }
 
         /// <summary>
-        /// Has default implementation: Calls <see cref="SuperItemChangeHandler"/>/<see cref="SubItemChangeHandler"/>
-        /// its <see cref="IMutableList{TItem}.ReplaceItem(int, Func{TItem}, bool)"/>
-        /// method when <see cref="IMutableList{TItem}.CanReplaceItem"/> is true.
+        /// Has default implementation: Calls <see cref="SuperItemsMutationTarget"/>/<see cref="SubItemsMutationTarget"/>
+        /// its <see cref="IListMutationTarget{TItem}.ReplaceItem(int, Func{TItem}, bool)"/>
+        /// method when <see cref="IListMutationTarget{TItem}.CanReplaceItem"/> is true.
         /// </summary>
         /// <param name="applyingModifications"></param>
         protected virtual void ReplaceItems(ApplyingCollectionModifications applyingModifications)
         {
-            var canReplaceOrUpdateSuperItem = SuperItemChangeHandler.CanReplaceItem || !(_superItemUpdateHandler is null);
-            var canReplaceOrUpdateSubItem = SubItemChangeHandler.CanReplaceItem || !(_subItemUpdateHandler is null);
+            var canReplaceOrUpdateSuperItem = SuperItemsMutationTarget.CanReplaceItem || !(_superItemUpdateHandler is null);
+            var canReplaceOrUpdateSubItem = SubItemsMutationTarget.CanReplaceItem || !(_subItemUpdateHandler is null);
 
             if (canReplaceOrUpdateSuperItem || canReplaceOrUpdateSubItem) {
                 var superItemModification = applyingModifications.SuperItemModification;
@@ -204,32 +204,32 @@ namespace Kenet.Collections.Reactive
 
                 iteratorBuilder.OnIteration(iterationContext => {
                     lazyCreatedSubItemByIndex[iterationContext.ModificationItemIndex] = new SlimLazy<TSubItem>(() =>
-                        CreateSubItem(superItemModification.NewItems![iterationContext.ModificationItemIndex]));
+                        SelectSubItem(superItemModification.NewItems![iterationContext.ModificationItemIndex]));
                 });
 
-                if (SuperItemChangeHandler.CanReplaceItem) {
+                if (SuperItemsMutationTarget.CanReplaceItem) {
                     iteratorBuilder.OnIteration(iterationContext => {
                         // We do not know, whether the old item gets
                         // consumed, so we provide it but lazy.
                         var lazyNewItem = new SlimLazy<TSuperItem>(() =>
                             superItemModification.NewItems![iterationContext.ModificationItemIndex]);
 
-                        SuperItemChangeHandler.ReplaceItem(iterationContext.CollectionItemIndex, lazyNewItem.GetValue);
+                        SuperItemsMutationTarget.ReplaceItem(iterationContext.CollectionItemIndex, lazyNewItem.GetValue);
                     });
                 }
 
                 iteratorBuilder.OnIteration(iterationContext => OnBeforeReplaceItem(iterationContext.CollectionItemIndex));
 
-                if (SubItemChangeHandler.CanReplaceItem) {
+                if (SubItemsMutationTarget.CanReplaceItem) {
                     iteratorBuilder.OnIteration(iterationContext =>
-                        SubItemChangeHandler.ReplaceItem(iterationContext.CollectionItemIndex, lazyCreatedSubItemByIndex[iterationContext.ModificationItemIndex].GetValue));
+                        SubItemsMutationTarget.ReplaceItem(iterationContext.CollectionItemIndex, lazyCreatedSubItemByIndex[iterationContext.ModificationItemIndex].GetValue));
                 }
 
                 void UpdateItem(int modificationItemIndex, int collectionItemIndex)
                 {
                     if (!(_superItemUpdateHandler is null)) {
                         _superItemUpdateHandler(
-                            SuperItemChangeHandler.Items[collectionItemIndex],
+                            SuperItemsMutationTarget.Items[collectionItemIndex],
                             // We want update with the latest super item (when used
                             // and accessible from user code) and latest sub item.
                             () => lazyCreatedSubItemByIndex[modificationItemIndex].Value);
@@ -237,7 +237,7 @@ namespace Kenet.Collections.Reactive
 
                     if (!(_subItemUpdateHandler is null)) {
                         _subItemUpdateHandler(
-                            SubItemChangeHandler.Items[collectionItemIndex],
+                            SubItemsMutationTarget.Items[collectionItemIndex],
                             () => superItemModification.NewItems![modificationItemIndex]);
                     }
                 }
@@ -250,8 +250,8 @@ namespace Kenet.Collections.Reactive
 
         protected virtual void ResetItems(ApplyingCollectionModifications applyingModifications)
         {
-            SubItemChangeHandler.ResetItems();
-            SuperItemChangeHandler.ResetItems();
+            SubItemsMutationTarget.ResetItems();
+            SuperItemsMutationTarget.ResetItems();
         }
 
         protected virtual void ProcessModification(ApplyingCollectionModifications applyingModifications)
@@ -293,7 +293,7 @@ namespace Kenet.Collections.Reactive
         {
             var enumerator = SynchronizationMethod
                 .YieldCollectionModifications(
-                    SuperItemChangeHandler.Items.AsList().ToIndexBasedEnumerator(),
+                    SuperItemsMutationTarget.Items.AsList().ToIndexBasedEnumerator(),
                     items?.GetEnumerator(),
                     yieldCapabilities)
                 .GetEnumerator();

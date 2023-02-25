@@ -33,22 +33,22 @@ namespace Kenet.Collections.Reactive
         public abstract class AbstractItemsOptions<TDerived, TItem> : AbstractCollectionItemsOptions<TDerived, TItem>, ISynchronizingCollectionItemsOptions<TItem>
             where TDerived : AbstractItemsOptions<TDerived, TItem>
         {
-            public ISynchronizedCollection<TItem>? SynchronizedItems { get; protected set; }
+            public ISynchronizedCollection<TItem>? Items { get; protected set; }
 
             /// <summary>
-            /// Sets <see cref="SynchronizedItems"/> and <see cref="AbstractCollectionItemsOptions{TDerived, TItem}.Items"/>.
+            /// Sets <see cref="Items"/> and <see cref="AbstractCollectionItemsOptions{TDerived, TItem}.ItemsMutationTarget"/>.
             /// </summary>
-            /// <param name="synchronizedItems"></param>
             /// <param name="items"></param>
-            public TDerived SetItems(ISynchronizedCollection<TItem> synchronizedItems, IMutableList<TItem> items)
+            /// <param name="itemsMutationTarget"></param>
+            public TDerived SetItems(ISynchronizedCollection<TItem> items, IListMutationTarget<TItem> itemsMutationTarget)
             {
-                SynchronizedItems = synchronizedItems ?? throw new ArgumentNullException(nameof(synchronizedItems));
                 Items = items ?? throw new ArgumentNullException(nameof(items));
+                ItemsMutationTarget = itemsMutationTarget ?? throw new ArgumentNullException(nameof(itemsMutationTarget));
                 return (TDerived)this;
             }
 
-            void ISynchronizingCollectionItemsOptions<TItem>.SetItems(ISynchronizedCollection<TItem> synchronizedItems, IMutableList<TItem> items) =>
-                SetItems(synchronizedItems, items);
+            void ISynchronizingCollectionItemsOptions<TItem>.SetItems(ISynchronizedCollection<TItem> items, IListMutationTarget<TItem> itemsMutationTarget) =>
+                SetItems(items, itemsMutationTarget);
         }
 
         public sealed class SuperItemsOptionsImpl : AbstractItemsOptions<SuperItemsOptionsImpl, TSuperItem>

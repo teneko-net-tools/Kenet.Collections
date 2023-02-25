@@ -17,24 +17,24 @@ namespace Kenet.Collections.Reactive
     {
         private static SynchronizableCollectionOptions<TItem> ConfigureOptions(
             [NotNull] ref SynchronizableCollectionOptions<TItem>? options,
-            out IMutableList<TItem> collectionChangeHandler)
+            out IListMutationTarget<TItem> itemsMutationTarget)
         {
             options ??= new SynchronizableCollectionOptions<TItem>();
-            SynchronizableCollectionItemsOptionsPostConfigurator.Default.PostConfigure(options.ItemsOptions, out collectionChangeHandler);
+            SynchronizableCollectionItemsOptionsPostConfigurator.Default.PostConfigure(options.ItemsOptions, out itemsMutationTarget);
             return options;
         }
 
         public ICollectionSynchronizationMethod<TItem, TItem> SynchronizationMethod { get; private set; } = null!;
 
-        private readonly IMutableList<TItem> _listMutator;
+        private readonly IListMutationTarget<TItem> _itemsMutationTarget;
         private readonly CollectionUpdateItemHandler<TItem, TItem>? _itemUpdateHandler;
 
-        private SynchronizableCollection(SynchronizableCollectionOptions<TItem> options, IMutableList<TItem> listMutator)
-            : base(listMutator, options.ItemsOptions)
+        private SynchronizableCollection(SynchronizableCollectionOptions<TItem> options, IListMutationTarget<TItem> itemsMutationTarget)
+            : base(itemsMutationTarget, options.ItemsOptions)
         {
             options.SynchronizationMethod ??= CollectionSynchronizationMethod.Sequential<TItem>();
             SynchronizationMethod = options.SynchronizationMethod;
-            _listMutator = listMutator;
+            _itemsMutationTarget = itemsMutationTarget;
             _itemUpdateHandler = options.ItemsOptions.ItemUpdateHandler;
         }
 
@@ -98,7 +98,7 @@ namespace Kenet.Collections.Reactive
                     CheckReentrancy();
                     var newItem = modification.NewItems![iterationContext.ModificationItemIndex];
                     OnBeforeAddItem(iterationContext.CollectionItemIndex, newItem);
-                    _listMutator.InsertItem(iterationContext.CollectionItemIndex, newItem);
+                    _itemsMutationTarget.InsertItem(iterationContext.CollectionItemIndex, newItem);
                     OnCollectionModified(modification);
                     OnAfterAddItem(iterationContext.CollectionItemIndex, newItem);
                 })
@@ -111,7 +111,7 @@ namespace Kenet.Collections.Reactive
                 .OnIteration(iterationContext => {
                     CheckReentrancy();
                     OnBeforeRemoveItem(iterationContext.CollectionItemIndex);
-                    _listMutator.RemoveItem(iterationContext.CollectionItemIndex);
+                    _itemsMutationTarget.RemoveItem(iterationContext.CollectionItemIndex);
                     OnCollectionModified(modification);
                     OnAfterRemoveItem(iterationContext.CollectionItemIndex);
                 })
@@ -124,15 +124,15 @@ namespace Kenet.Collections.Reactive
                 .OnIteration(iterationContext => {
                     var lazyItem = new SlimLazy<TItem>(() => modification.NewItems![iterationContext.ModificationItemIndex]);
 
-                    if (_listMutator.CanReplaceItem) {
+                    if (_itemsMutationTarget.CanReplaceItem) {
                         CheckReentrancy();
                         OnBeforeReplaceItem(iterationContext.CollectionItemIndex);
-                        _listMutator.ReplaceItem(iterationContext.CollectionItemIndex, lazyItem.GetValue);
+                        _itemsMutationTarget.ReplaceItem(iterationContext.CollectionItemIndex, lazyItem.GetValue);
                         OnCollectionModified(modification);
                         OnBeforeReplaceItem(iterationContext.CollectionItemIndex);
                     }
 
-                    _itemUpdateHandler?.Invoke(_listMutator.Items[iterationContext.CollectionItemIndex], lazyItem.GetValue);
+                    _itemUpdateHandler?.Invoke(_itemsMutationTarget.Items[iterationContext.CollectionItemIndex], lazyItem.GetValue);
                 })
                 .Iterate();
         }
@@ -142,7 +142,7 @@ namespace Kenet.Collections.Reactive
             CollectionModificationIterationHelper.CheckMove(modification);
             CheckReentrancy();
             OnBeforeMoveItems();
-            _listMutator.MoveItems(modification.OldIndex, modification.NewIndex, modification.OldItems!.Count);
+            _itemsMutationTarget.MoveItems(modification.OldIndex, modification.NewIndex, modification.OldItems!.Count);
             OnCollectionModified(modification);
             OnAfterMoveItems();
         }
@@ -151,7 +151,7 @@ namespace Kenet.Collections.Reactive
         {
             CheckReentrancy();
             OnBeforeResetItems();
-            _listMutator.ResetItems();
+            _itemsMutationTarget.ResetItems();
             OnCollectionModified(modification);
             OnAfterResetItems();
         }

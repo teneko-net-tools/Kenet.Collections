@@ -5,8 +5,8 @@ namespace Kenet.Collections.Reactive
 {
     public interface ICollectionItemsOptions<TItem> : IReadOnlyCollectionItemsOptions
     {
-        IMutableList<TItem>? Items { get; }
+        IListMutationTarget<TItem>? ItemsMutationTarget { get; }
 
-        void SetItems(IMutableList<TItem>? list);
+        void SetItems(IListMutationTarget<TItem>? list);
     }
 }

@@ -10,12 +10,12 @@ namespace Kenet.Collections.Reactive
     {
         public abstract partial class ItemCollection<TItem, TNewItem> : SynchronizableCollectionBase<TItem, TNewItem>
         {
-            public ItemCollection(IMutableList<TItem> changeHandler, ICollectionItemsOptions<TItem> options, SynchronizingCollectionBase<TSuperItem, TSubItem> synchronizingCollection)
-                : base(changeHandler, options)
+            public ItemCollection(IListMutationTarget<TItem> itemsMutationTarget, ICollectionItemsOptions<TItem> options, SynchronizingCollectionBase<TSuperItem, TSubItem> items)
+                : base(itemsMutationTarget, options)
             {
-                synchronizingCollection.CollectionSynchronizing += SynchronizingCollection_CollectionSynchronizing;
-                synchronizingCollection.CollectionModified += CollectionModificationNotifier_CollectionModified;
-                synchronizingCollection.CollectionSynchronized += SynchronizingCollection_CollectionSynchronized;
+                items.CollectionSynchronizing += SynchronizingCollection_CollectionSynchronizing;
+                items.CollectionModified += CollectionModificationNotifier_CollectionModified;
+                items.CollectionSynchronized += SynchronizingCollection_CollectionSynchronized;
             }
 
             private void SynchronizingCollection_CollectionSynchronizing(object? sender, EventArgs e) =>
@@ -35,8 +35,8 @@ namespace Kenet.Collections.Reactive
 
         public class SubItemCollection : ItemCollection<TSubItem, TSuperItem>
         {
-            public SubItemCollection(IMutableList<TSubItem> items, ICollectionItemsOptions<TSubItem> options, SynchronizingCollectionBase<TSuperItem, TSubItem> synchronizingCollection)
-                : base(items, options, synchronizingCollection) { }
+            public SubItemCollection(IListMutationTarget<TSubItem> itemsMutationTarget, ICollectionItemsOptions<TSubItem> options, SynchronizingCollectionBase<TSuperItem, TSubItem> items)
+                : base(itemsMutationTarget, options, items) { }
 
             protected override ICollectionModification<TSubItem, TSubItem> GetCollectionModification(CollectionModifiedEventArgs<TSuperItem, TSubItem> args) =>
                 args.SubItemModification;
@@ -44,8 +44,8 @@ namespace Kenet.Collections.Reactive
 
         public class SuperItemCollection : ItemCollection<TSuperItem, TSubItem>
         {
-            public SuperItemCollection(IMutableList<TSuperItem> items, ICollectionItemsOptions<TSuperItem> options, SynchronizingCollectionBase<TSuperItem, TSubItem> synchronizingCollection)
-                : base(items, options, synchronizingCollection) { }
+            public SuperItemCollection(IListMutationTarget<TSuperItem> itemsMutationTarget, ICollectionItemsOptions<TSuperItem> options, SynchronizingCollectionBase<TSuperItem, TSubItem> items)
+                : base(itemsMutationTarget, options, items) { }
 
             protected override ICollectionModification<TSuperItem, TSuperItem> GetCollectionModification(CollectionModifiedEventArgs<TSuperItem, TSubItem> args) =>
                 args.SuperItemModification;

@@ -3,7 +3,6 @@
 
 using System;
 using System.Diagnostics.CodeAnalysis;
-using Kenet.Collections.Reactive;
 
 namespace Kenet.Collections.Reactive
 {
@@ -11,21 +10,21 @@ namespace Kenet.Collections.Reactive
         where TSuperItem : notnull
         where TSubItem : notnull
     {
-        private Func<TSuperItem, TSubItem> subItemFactory;
+        private Func<TSuperItem, TSubItem> _subItemSelector;
 
-        public SynchronizingCollection(Func<TSuperItem, TSubItem> subItemFactory, SynchronizingCollectionOptions<TSuperItem, TSubItem>? options)
+        public SynchronizingCollection(Func<TSuperItem, TSubItem> subItemSelector, SynchronizingCollectionOptions<TSuperItem, TSubItem>? options)
             : base(options) =>
-            OnInitialize(subItemFactory);
+            OnInitialize(subItemSelector);
 
-        public SynchronizingCollection(Func<TSuperItem, TSubItem> subItemFactory) :
+        public SynchronizingCollection(Func<TSuperItem, TSubItem> subItemSelector) :
             base() =>
-            OnInitialize(subItemFactory);
+            OnInitialize(subItemSelector);
 
-        [MemberNotNull(nameof(subItemFactory))]
-        private void OnInitialize(Func<TSuperItem, TSubItem> subItemFactory) =>
-            this.subItemFactory = subItemFactory ?? throw new ArgumentNullException(nameof(subItemFactory));
+        [MemberNotNull(nameof(_subItemSelector))]
+        private void OnInitialize(Func<TSuperItem, TSubItem> subItemSelector) =>
+            _subItemSelector = subItemSelector ?? throw new ArgumentNullException(nameof(subItemSelector));
 
-        protected override TSubItem CreateSubItem(TSuperItem superItem) =>
-            subItemFactory(superItem);
+        protected override TSubItem SelectSubItem(TSuperItem superItem) =>
+            _subItemSelector(superItem);
     }
 }

@@ -11,22 +11,22 @@ namespace Kenet.Collections.Reactive.PostConfigurators
 
         public void PostConfigure<TItem>(
             ISynchronizingCollectionItemsOptions<TItem> itemsOptions,
-            out IMutableList<TItem> collectionChangeHandler,
-            Func<IMutableList<TItem>, ISynchronizedCollection<TItem>> synchronizedItemsFactory,
-            out ISynchronizedCollection<TItem> synchronizedItems)
+            out IListMutationTarget<TItem> itemsMutationTarget,
+            Func<IListMutationTarget<TItem>, ISynchronizedCollection<TItem>> itemsFactory,
+            out ISynchronizedCollection<TItem> items)
             where TItem : notnull
         {
-            SynchronizableCollectionItemsOptionsPostConfigurator.Default.PostConfigure(itemsOptions, out collectionChangeHandler);
+            SynchronizableCollectionItemsOptionsPostConfigurator.Default.PostConfigure(itemsOptions, out itemsMutationTarget);
 
-            var itemOptionsSynchronizedItems = itemsOptions.SynchronizedItems;
+            var itemOptionsSynchronizedItems = itemsOptions.Items;
 
             if (!(itemOptionsSynchronizedItems is null)) {
-                synchronizedItems = itemOptionsSynchronizedItems;
+                items = itemOptionsSynchronizedItems;
                 return;
             }
 
-            synchronizedItems = synchronizedItemsFactory(collectionChangeHandler);
-            itemsOptions.SetItems(synchronizedItems, collectionChangeHandler);
+            items = itemsFactory(itemsMutationTarget);
+            itemsOptions.SetItems(items, itemsMutationTarget);
         }
     }
 }

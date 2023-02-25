@@ -9,56 +9,56 @@ namespace Kenet.Collections.Reactive
     public abstract class AbstractCollectionItemsOptions<TDerived, TItem> : ICollectionItemsOptions<TItem>
         where TDerived : AbstractCollectionItemsOptions<TDerived, TItem>
     {
-        public IMutableList<TItem>? Items { get; protected set; }
+        public IListMutationTarget<TItem>? ItemsMutationTarget { get; protected set; }
 
-        public TDerived SetItems(IMutableList<TItem>? items)
+        public TDerived SetItems(IListMutationTarget<TItem>? itemsMutationTarget)
         {
-            Items = items;
+            ItemsMutationTarget = itemsMutationTarget;
             return (TDerived)this;
         }
 
         public TDerived SetItems(IList<TItem> items)
         {
-            Items = new MutableList<TItem>(items);
+            ItemsMutationTarget = new ListMutationTarget<TItem>(items);
             return (TDerived)this;
         }
 
         /// <summary>
-        /// Sets <see cref="Items"/> by creating a 
-        /// <see cref="MutableList{ItemType}"/>
-        /// with <paramref name="items"/> and <paramref name="mutator"/>.
+        /// Sets <see cref="ItemsMutationTarget"/> by creating a 
+        /// <see cref="ListMutationTarget{ItemType}"/>
+        /// with <paramref name="items"/> and <paramref name="itemsMutator"/>.
         /// <see cref="SynchronizableCollectionBase{ItemType, NewItemType}"/>.
         /// </summary>
         /// <param name="items"></param>
-        /// <param name="mutator"></param>
-        public TDerived SetItems(IList<TItem> items, IStatelessCollectionMutator<TItem> mutator)
+        /// <param name="itemsMutator"></param>
+        public TDerived SetItems(IList<TItem> items, IListMutator<TItem> itemsMutator)
         {
             if (items is null) {
                 throw new ArgumentNullException(nameof(items));
             }
 
-            if (mutator is null) {
-                throw new ArgumentNullException(nameof(mutator));
+            if (itemsMutator is null) {
+                throw new ArgumentNullException(nameof(itemsMutator));
             }
 
-            Items = new MutableList<TItem>(items, mutator);
+            ItemsMutationTarget = new ListMutationTarget<TItem>(items, itemsMutator);
             return (TDerived)this;
         }
 
         /// <summary>
-        /// Sets <see cref="Items"/> by creating a 
-        /// <see cref="MutableList{ItemType}"/>
-        /// with new <see cref="List{T}"/> and <paramref name="mutator"/>.
+        /// Sets <see cref="ItemsMutationTarget"/> by creating a 
+        /// <see cref="ListMutationTarget{ItemType}"/>
+        /// with new <see cref="List{T}"/> and <paramref name="itemsMutator"/>.
         /// <see cref="SynchronizableCollectionBase{ItemType, NewItemType}"/>.
         /// </summary>
-        /// <param name="mutator"></param>
-        public TDerived SetItems(IStatelessCollectionMutator<TItem> mutator) =>
-            SetItems(new List<TItem>(), mutator);
+        /// <param name="itemsMutator"></param>
+        public TDerived SetItems(IListMutator<TItem> itemsMutator) =>
+            SetItems(new List<TItem>(), itemsMutator);
 
         #region ISynchronizableCollectionItemsOptions<TItem>
 
-        void ICollectionItemsOptions<TItem>.SetItems(IMutableList<TItem>? items) =>
-            SetItems(items);
+        void ICollectionItemsOptions<TItem>.SetItems(IListMutationTarget<TItem>? itemsMutationTarget) =>
+            SetItems(itemsMutationTarget);
 
         #endregion
     }

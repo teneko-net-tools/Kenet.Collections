@@ -7,81 +7,81 @@ using Teronis.Extensions;
 
 namespace Kenet.Collections.Reactive
 {
-    internal class MutableList<TItem> : IMutableList<TItem>
+    internal class ListMutationTarget<TItem> : IListMutationTarget<TItem>
     {
-        public event EventHandler<Action<IListMutationTarget<TItem>>>? CollectRedirectionTargets;
+        public event EventHandler<Action<IMutationTarget<TItem>>>? CollectRedirectionTargets;
 
         public IList<TItem> Items { get; }
-        public IStatelessCollectionMutator<TItem> Handler { get; }
+        public IListMutator<TItem> ItemsMutator { get; }
 
-        private readonly ListMutationTarget _itemsMutationTarget;
+        private readonly ItemsMutationTargetAdapter _itemsMutationTarget;
 
-        public MutableList(IList<TItem> items)
+        public ListMutationTarget(IList<TItem> items)
         {
             Items = items ?? throw new ArgumentNullException(nameof(items));
-            Handler = DefaultCollectionChangeBehaviour.Default;
-            _itemsMutationTarget = new ListMutationTarget(Items, Handler);
+            ItemsMutator = DefaultCollectionChangeBehaviour.Default;
+            _itemsMutationTarget = new ItemsMutationTargetAdapter(Items, ItemsMutator);
         }
 
-        public MutableList(IList<TItem> items, IStatelessCollectionMutator<TItem>? modifier)
+        public ListMutationTarget(IList<TItem> items, IListMutator<TItem>? itemsMutator)
         {
             Items = items ?? throw new ArgumentNullException(nameof(items));
-            Handler = modifier ?? DefaultCollectionChangeBehaviour.Default;
-            _itemsMutationTarget = new ListMutationTarget(Items, Handler);
+            ItemsMutator = itemsMutator ?? DefaultCollectionChangeBehaviour.Default;
+            _itemsMutationTarget = new ItemsMutationTargetAdapter(Items, ItemsMutator);
         }
 
         /// <inheritdoc/>
         public virtual bool CanReplaceItem =>
-            Handler.CanReplaceItem;
+            ItemsMutator.CanReplaceItem;
 
-        public void MutateItems(Action<IListMutationTarget<TItem>> mutateCollection) =>
-            mutateCollection(_itemsMutationTarget);
+        public void MutateItems(Action<IMutationTarget<TItem>> mutateItems) =>
+            mutateItems(_itemsMutationTarget);
 
-        public void MutateItemsThroughRedirection(Action<IListMutationTarget<TItem>> mutateCollection)
+        public void MutateItemsThroughRedirection(Action<IMutationTarget<TItem>> mutateItems)
         {
-            var targets = new List<IListMutationTarget<TItem>>();
+            var targets = new List<IMutationTarget<TItem>>();
             CollectRedirectionTargets?.Invoke(this, targets.Add);
 
             foreach (var target in targets) {
-                mutateCollection(target);
+                mutateItems(target);
             }
         }
 
-        public void Mutate(Action<IListMutationTarget<TItem>> mutateCollection, bool disableRedirection)
+        public void Mutate(Action<IMutationTarget<TItem>> mutateItems, bool disableRedirection)
         {
             if (disableRedirection) {
-                MutateItems(mutateCollection);
+                MutateItems(mutateItems);
                 return;
             }
 
-            MutateItemsThroughRedirection(mutateCollection);
+            MutateItemsThroughRedirection(mutateItems);
         }
 
-        private class ListMutationTarget : IListMutationTarget<TItem>
+        private class ItemsMutationTargetAdapter : IMutationTarget<TItem>
         {
             private readonly IList<TItem> _items;
-            private readonly IStatelessCollectionMutator<TItem> _collectionModifier;
+            private readonly IListMutator<TItem> _itemsMutator;
 
-            public ListMutationTarget(IList<TItem> items, IStatelessCollectionMutator<TItem> collectionModifier)
+            public ItemsMutationTargetAdapter(IList<TItem> items, IListMutator<TItem> itemsMutator)
             {
                 _items = items;
-                _collectionModifier = collectionModifier;
+                _itemsMutator = itemsMutator;
             }
 
             public virtual void InsertItem(int insertAt, TItem item) =>
-                _collectionModifier.InsertItem(_items, insertAt, item);
+                _itemsMutator.InsertItem(_items, insertAt, item);
 
             public virtual void RemoveItem(int removeAt) =>
-                _collectionModifier.RemoveItem(_items, removeAt);
+                _itemsMutator.RemoveItem(_items, removeAt);
 
             public virtual void MoveItems(int fromIndex, int toIndex, int count) =>
-                _collectionModifier.MoveItems(_items, fromIndex, toIndex, count);
+                _itemsMutator.MoveItems(_items, fromIndex, toIndex, count);
 
             public virtual void ReplaceItem(int replaceAt, Func<TItem> getItem) =>
-                _collectionModifier.ReplaceItem(_items, replaceAt, getItem);
+                _itemsMutator.ReplaceItem(_items, replaceAt, getItem);
 
             public virtual void ResetItems() =>
-                _collectionModifier.Reset(_items);
+                _itemsMutator.Reset(_items);
         }
 
         /// <summary>
@@ -89,7 +89,7 @@ namespace Kenet.Collections.Reactive
         /// Insert, remove, move and reset do as they are named. Only the replace-functionality is
         /// disabled.
         /// </summary>
-        public class DefaultCollectionChangeBehaviour : IStatelessCollectionMutator<TItem>
+        public class DefaultCollectionChangeBehaviour : IListMutator<TItem>
         {
             public static DefaultCollectionChangeBehaviour Default = new();
 

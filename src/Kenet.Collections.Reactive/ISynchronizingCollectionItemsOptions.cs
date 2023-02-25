@@ -5,8 +5,8 @@ namespace Kenet.Collections.Reactive
 {
     internal interface ISynchronizingCollectionItemsOptions<TItem> : ICollectionItemsOptions<TItem>
     {
-        ISynchronizedCollection<TItem>? SynchronizedItems { get; }
+        ISynchronizedCollection<TItem>? Items { get; }
 
-        void SetItems(ISynchronizedCollection<TItem> synchronizedItems, IMutableList<TItem> items);
+        void SetItems(ISynchronizedCollection<TItem> items, IListMutationTarget<TItem> itemsMutationTarget);
     }
 }
